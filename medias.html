@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAHP - Galerie Média</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="imgs/ICONE.ico">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html">
+                <div class="sidebar-logo">
+                    <img src="imgs/LOGO.png" alt="SAHP Badge">
+                </div>
+                <div class="sidebar-title">
+                    <h1>SAHP</h1>
+                </div>
+            </a>
+        </div>
+        
+        <nav class="nav">
+            <ul>
+                <li><a href="index.html">
+                    <span class="nav-dot">●</span>
+                    <span class="nav-text">Accueil</span>
+                </a></li>
+                <li><a href="bureaux.html">
+                    <span class="nav-dot">●</span>
+                    <span class="nav-text">Bureaux Régionaux</span>
+                </a></li>
+                <li><a href="plaintes.html">
+                    <span class="nav-dot">●</span>
+                    <span class="nav-text">Plaintes</span>
+                </a></li>
+                <li><a href="recrutements.html">
+                    <span class="nav-dot">●</span>
+                    <span class="nav-text">Nous Rejoindre</span>
+                </a></li>
+                <li><a href="medias.html" class="active">
+                    <span class="nav-dot">●</span>
+                    <span class="nav-text">Galerie Média</span>
+                </a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="hero-header medias-bg">
+            <div class="search-icon">🔍︎</div>
+        </header>
+
+        <section class="medias-section">
+            <h2>Galerie Média</h2>
+            <div id="loading" class="loading-message">Chargement des images...</div>
+            <div id="error" class="error-message" style="display: none;"></div>
+            <div id="gallery" class="gallery"></div>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; MST - San Andreas Highway Patrol. Tous droits réservés.</p>
+        </footer>
+    </main>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="Image agrandie">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
