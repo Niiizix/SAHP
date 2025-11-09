@@ -83,7 +83,7 @@ window.addEventListener('DOMContentLoaded', loadGallery);
 
 // CONNEXION LOGIN
 
-const API_URL = 'https://sahp.charliemoimeme.workers.dev/login';
+const API2_URL = 'https://sahp.charliemoimeme.workers.dev/login';
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -97,7 +97,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     submitBtn.textContent = 'CONNEXION...';
     
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(API2_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -125,3 +125,4 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         submitBtn.textContent = 'CONNEXION';
     }
 });
+
