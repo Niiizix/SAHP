@@ -1,10 +1,16 @@
-// REMPLACE CETTE URL par l'URL de déploiement de ton Google Apps Script
+// ========================================
+// GALERIE MÉDIA
+// ========================================
+
 const API_URL = 'https://script.google.com/macros/s/AKfycbwlwlOXrICvHumi_sCGgRyuFSpr8mdFYsvLkArNgrwhpfhC1DuGbtJ3Uu3MprIYDxn2/exec';
 
 async function loadGallery() {
     const gallery = document.getElementById('gallery');
     const loading = document.getElementById('loading');
     const error = document.getElementById('error');
+
+    // Vérifier si les éléments existent (on est sur la page médias)
+    if (!gallery || !loading || !error) return;
 
     try {
         const response = await fetch(API_URL);
@@ -28,7 +34,6 @@ async function loadGallery() {
         }
 
         imageUrls.forEach((url, index) => {
-            
             const item = document.createElement('div');
             item.className = 'gallery-item';
 
@@ -53,76 +58,99 @@ async function loadGallery() {
 function openLightbox(imageUrl) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
-    lightboxImg.src = imageUrl;
-    lightbox.classList.add('active');
+    if (lightbox && lightboxImg) {
+        lightboxImg.src = imageUrl;
+        lightbox.classList.add('active');
+    }
 }
 
 function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
-    lightbox.classList.remove('active');
+    if (lightbox) {
+        lightbox.classList.remove('active');
+    }
 }
 
-// Fermer le lightbox en cliquant en dehors de l'image
-document.getElementById('lightbox').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeLightbox();
-    }
-});
-
-// Fermer avec la touche Échap
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeLightbox();
-    }
-});
-
-// Charger la galerie au chargement de la page
-window.addEventListener('DOMContentLoaded', loadGallery);
-
-
-
-// CONNEXION LOGIN
+// ========================================
+// LOGIN / AUTHENTIFICATION
+// ========================================
 
 const API2_URL = 'https://sahp.charliemoimeme.workers.dev/login';
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+function initLogin() {
+    const loginForm = document.getElementById('loginForm');
     
-    const badge = document.getElementById('badge').value;
-    const code_acces = document.getElementById('password').value;
-    const submitBtn = document.querySelector('.btn-login');
-    
-    // Désactiver le bouton pendant la requête
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'CONNEXION...';
-    
-    try {
-        const response = await fetch(API2_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ badge, code_acces })
-        });
+    // Vérifier si on est sur la page login
+    if (!loginForm) return;
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        const data = await response.json();
+        const badge = document.getElementById('badge').value;
+        const code_acces = document.getElementById('password').value;
+        const submitBtn = document.querySelector('.btn-login');
         
-        if (data.success) {
-            // Stocker les infos de l'agent (sécurisé car pas de données sensibles)
-            sessionStorage.setItem('agent', JSON.stringify(data.agent));
+        // Désactiver le bouton pendant la requête
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'CONNEXION...';
+        
+        try {
+            const response = await fetch(API2_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ badge, code_acces })
+            });
             
-            // Rediriger vers la page interne
-            window.location.href = 'dashboard.html';
-        } else {
-            // Afficher l'erreur
-            alert(data.message);
+            const data = await response.json();
+            
+            if (data.success) {
+                // Stocker les infos de l'agent
+                sessionStorage.setItem('agent', JSON.stringify(data.agent));
+                
+                // Rediriger vers la page interne
+                window.location.href = 'dashboard.html';
+            } else {
+                // Afficher l'erreur
+                alert(data.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'CONNEXION';
+            }
+        } catch (error) {
+            alert('Erreur de connexion au serveur');
             submitBtn.disabled = false;
             submitBtn.textContent = 'CONNEXION';
         }
-    } catch (error) {
-        alert('Erreur de connexion au serveur');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'CONNEXION';
-    }
-});
+    });
+}
 
+// ========================================
+// INITIALISATION AU CHARGEMENT DE LA PAGE
+// ========================================
+
+window.addEventListener('DOMContentLoaded', function() {
+    // Initialiser la galerie si on est sur medias.html
+    loadGallery();
+    
+    // Initialiser le login si on est sur login.html
+    initLogin();
+    
+    // Gérer le lightbox si présent
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+        // Fermer le lightbox en cliquant en dehors de l'image
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLightbox();
+            }
+        });
+    }
+    
+    // Fermer avec la touche Échap
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeLightbox();
+        }
+    });
+});
