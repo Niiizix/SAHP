@@ -359,7 +359,7 @@ body {
 /* Footer */
 
 .footer {
-    background: #344f78;
+    background: #273c5b;
     border-top: 1px solid #333;
     padding: 1.5rem 0;
     text-align: center;
@@ -371,6 +371,7 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
 
