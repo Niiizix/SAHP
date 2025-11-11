@@ -79,15 +79,15 @@ body {
 /* AGENT INFO */
 
 .agent-details {
-    opacity: 0;
-    height: 0;
+    display: none;
+    height: auto;
     overflow: hidden;
     transition: opacity 0.3s ease;
     text-align: center;
 }
 
 .sidebar:hover .agent-details {
-    opacity: 1;
+    display: block;
     height: auto;
 }
 
@@ -362,5 +362,6 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
