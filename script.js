@@ -126,6 +126,27 @@ function initLogin() {
 }
 
 // ========================================
+// DASHBOARD - AFFICHAGE INFO AGENT
+// ========================================
+function initDashboard() {
+    const agentName = document.getElementById('agentName');
+    
+    if (!agentName) return;
+    
+    const agentData = sessionStorage.getItem('agent');
+    
+    if (!agentData) {
+        window.location.href = 'login.html';
+    } else {
+        const agent = JSON.parse(agentData);
+        
+        document.getElementById('agentName').textContent = `${agent.prenom} ${agent.nom}`;
+        document.getElementById('agentBadge').textContent = `Badge: ${agent.badge}`;
+        document.getElementById('agentGrade').textContent = `Grade: ${agent.grade}`;
+    }
+}
+
+// ========================================
 // INITIALISATION AU CHARGEMENT DE LA PAGE
 // ========================================
 
@@ -135,6 +156,9 @@ window.addEventListener('DOMContentLoaded', function() {
     
     // Initialiser le login si on est sur login.html
     initLogin();
+
+    // Initialiser le chargement des infos de l'agent
+    initDashboard();
     
     // Gérer le lightbox si présent
     const lightbox = document.getElementById('lightbox');
