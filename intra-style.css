@@ -44,12 +44,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 80px;
     transition: padding 0.3s ease;
 }
 
 .sidebar:hover .sidebar-header {
     padding: 2rem 1.5rem;
+    min-height: 80px;
     display: block;
 }
 
@@ -356,6 +356,7 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
 
