@@ -68,8 +68,8 @@ body {
 }
 
 .agent-avatar {
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     overflow: hidden;
     margin-bottom: 0.5rem;
@@ -77,8 +77,8 @@ body {
 }
 
 .sidebar:hover .agent-avatar {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
 }
 
 .agent-avatar img {
@@ -371,6 +371,7 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
 
