@@ -198,11 +198,11 @@ body {
     padding-left: 1rem;
 }
 
-.has-submenu:hover > .submenu {
+.has-submenu.open > .submenu {
     display: block;
 }
 
-.has-submenu:hover > a .arrow {
+.has-submenu.open > a .arrow {
     transform: rotate(90deg);
 }
 
@@ -544,4 +544,3 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
-
