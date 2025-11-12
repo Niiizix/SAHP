@@ -288,10 +288,10 @@ body {
 }
 
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 1.5rem;
-    justify-items: center;
+    justify-content: center;
 }
 
 .stat-card {
@@ -304,8 +304,9 @@ body {
     gap: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    width: 100%;
-    max-width: 350px;
+    flex: 1 1 220px;
+    max-width: 300px;
+    min-width: 220px;
 }
 
 .stat-card:hover {
