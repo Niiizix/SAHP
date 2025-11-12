@@ -259,87 +259,135 @@ body {
     margin-bottom: 0;
 }
 
-/* INDEX - Video */
+/* STATS SECTION */
 
-.video-section {
+.stats-section {
     background: #f8f9fa;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: clamp(1.5rem, 3vw, 2.5rem);
-    max-width: 1400px;
-    width: calc(100% - 4rem);
-    margin: 0 auto clamp(1rem, 2vw, 2rem) auto;
+    margin: clamp(1rem, 2vw, 2rem);
     margin-left: max(2rem, 2vw);
     margin-right: max(2rem, 2vw);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1400px;
+    width: calc(100% - 4rem);
     align-self: center;
 }
 
-.video-section h2 {
-    color: #344f78;
+.stats-section h2 {
+    color: #273c5b;
+    text-align: center;
     font-size: clamp(1.3rem, 2vw + 0.5rem, 1.8rem);
     margin-bottom: 1.5rem;
     font-weight: 600;
-    text-align: center;
 }
 
-.video-container {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    width: 100%;
-    max-width: 100%;
-    background: #000;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.section-subtitle {
+    margin-top: 2.5rem;
 }
 
-.video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
 }
 
-/* INDEX - Image Direction */
-
-.image-section {
-    background: #f8f9fa;
+.stat-card {
+    background: white;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    padding: clamp(1.5rem, 3vw, 2.5rem);
-    max-width: 1400px;
-    width: calc(100% - 4rem);
-    margin: 0 auto clamp(1rem, 2vw, 2rem) auto;
-    margin-left: max(2rem, 2vw);
-    margin-right: max(2rem, 2vw);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    align-self: center;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.image-section h2 {
-    color: #344f78;
-    font-size: clamp(1.3rem, 2vw + 0.5rem, 1.8rem);
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    text-align: center;
-}
-
-.image-container {
-    width: 100%;
-    max-width: 100%;
-    background: #000;
-    border-radius: 8px;
+.stat-card:hover {
+    transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
 }
 
-.image-container img {
-    width: 100%;
-    height: auto;
-    display: block;
+.stat-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-label {
+    color: #666;
+    font-size: clamp(0.85rem, 0.95vw + 0.3rem, 0.95rem);
+    margin-bottom: 0.3rem;
+}
+
+.stat-value {
+    color: #273c5b;
+    font-size: clamp(1.5rem, 2vw + 0.5rem, 2rem);
+    font-weight: 700;
+}
+
+/* CORPS GRID */
+
+.corps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.corps-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid;
+}
+
+.corps-card.direction {
+    border-left-color: #dc2626;
+}
+
+.corps-card.commandement {
+    border-left-color: #f59e0b;
+}
+
+.corps-card.supervision {
+    border-left-color: #3b82f6;
+}
+
+.corps-card.application {
+    border-left-color: #10b981;
+}
+
+.corps-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.corps-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.corps-label {
+    color: #666;
+    font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.corps-value {
+    color: #273c5b;
+    font-size: clamp(1.8rem, 2.5vw + 0.5rem, 2.2rem);
+    font-weight: 700;
 }
 
 /* Footer */
@@ -357,12 +405,3 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
-
-
-
-
-
-
-
-
-
