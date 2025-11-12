@@ -59,6 +59,94 @@
             <p>Bienvenue sur l'intranet de la SAHP. Vous trouverez ici tous les outils nécessaires au bon travail de policier.</p>
         </section>
 
+        <section class="stats-section">
+            <h2>Statistiques</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👮</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Agents Total</p>
+                        <p class="stat-value" id="totalAgents">---</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🚨</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Avis de Recherche</p>
+                        <p class="stat-value" id="searchWarrants">---</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Citoyens Recensés</p>
+                        <p class="stat-value" id="totalCitizens">---</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Rapports Global</p>
+                        <p class="stat-value" id="totalReports">---</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Plaintes Civils</p>
+                        <p class="stat-value" id="civilComplaints">---</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🔍</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Enquêtes OIS</p>
+                        <p class="stat-value" id="oisInvestigations">---</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📄</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Rapports OIS</p>
+                        <p class="stat-value" id="oisReports">---</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-subtitle">Répartition par Corps</h2>
+            <div class="corps-grid">
+                <div class="corps-card direction">
+                    <div class="corps-icon">⭐</div>
+                    <p class="corps-label">Direction</p>
+                    <p class="corps-value" id="corpsDirection">---</p>
+                </div>
+                
+                <div class="corps-card commandement">
+                    <div class="corps-icon">🎖️</div>
+                    <p class="corps-label">Commandement</p>
+                    <p class="corps-value" id="corpsCommandement">---</p>
+                </div>
+                
+                <div class="corps-card supervision">
+                    <div class="corps-icon">👔</div>
+                    <p class="corps-label">Supervision</p>
+                    <p class="corps-value" id="corpsSupervision">---</p>
+                </div>
+                
+                <div class="corps-card application">
+                    <div class="corps-icon">🚔</div>
+                    <p class="corps-label">Application</p>
+                    <p class="corps-value" id="corpsApplication">---</p>
+                </div>
+            </div>
+        </section>
+
         <footer class="footer">
             <p>&copy; MST - San Andreas Highway Patrol. Tous droits réservés.</p>
         </footer>
@@ -66,6 +154,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
