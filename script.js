@@ -147,6 +147,34 @@ function initDashboard() {
 }
 
 // ========================================
+// NAVIGATION - SUBMENU
+// ========================================
+
+function initSubmenuToggle() {
+    const submenuToggles = document.querySelectorAll('.submenu-toggle');
+    
+    submenuToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const parent = this.parentElement;
+            const isOpen = parent.classList.contains('open');
+            
+            // Fermer tous les sous-menus du même niveau
+            const siblings = parent.parentElement.querySelectorAll(':scope > .has-submenu');
+            siblings.forEach(sibling => {
+                if (sibling !== parent) {
+                    sibling.classList.remove('open');
+                }
+            });
+            
+            // Toggle le sous-menu actuel
+            parent.classList.toggle('open');
+        });
+    });
+}
+
+// ========================================
 // INITIALISATION AU CHARGEMENT DE LA PAGE
 // ========================================
 
@@ -159,6 +187,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
     // Initialiser le chargement des infos de l'agent
     initDashboard();
+
+    // Initialiser le sous menu de la partie interne du site
+    initSubmenuToggle();
     
     // Gérer le lightbox si présent
     const lightbox = document.getElementById('lightbox');
