@@ -351,6 +351,32 @@ async function openAgentModal(agentId) {
     }
 }
 
+function formatDate(dateString) {
+    if (!dateString) return 'Non renseignée';
+    
+    // Si c'est déjà au format DD/MM/YYYY
+    if (dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+        return dateString;
+    }
+    
+    // Si c'est au format YYYY-MM-DD (format SQL)
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+    }
+    
+    // Essayer de parser avec Date
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+    
+    return 'Format invalide';
+}
+
 function displayAgentModal(agent) {
     let modal = document.getElementById('agentModal');
     
@@ -366,7 +392,7 @@ function displayAgentModal(agent) {
         ? `<img src="${photoUrl}" alt="Photo ${agent.prenom} ${agent.nom}">`
         : `<div class="agent-photo-placeholder">👤</div>`;
     
-    const dateEntree = agent.date_entree ? new Date(agent.date_entree).toLocaleDateString('fr-FR') : 'Non renseignée';
+    const dateEntree = agent.date_entree ? formatDate(agent.date_entree) : 'Non renseignée';
     
     modal.innerHTML = `
         <div class="agent-modal-content">
