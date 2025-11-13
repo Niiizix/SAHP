@@ -387,7 +387,7 @@ function displayAgentModal(agent) {
         document.body.appendChild(modal);
     }
     
-    const photoUrl = agent.photo_url || 'imgs/default-agent.png';
+    const photoUrl = agent.photo_url || 'imgs/default-agents.png';
     const photoHTML = `<img src="${photoUrl}" alt="Photo ${agent.prenom} ${agent.nom}">`;
     
     const dateEntree = agent.date_entree ? formatDate(agent.date_entree) : 'Non renseignée';
@@ -987,3 +987,4 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
