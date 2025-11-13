@@ -512,7 +512,6 @@ function uploadPhoto(agentId) {
             if (data.success) {
                 // Recharger la modal avec la nouvelle photo
                 openAgentModal(agentId);
-                alert('Photo mise à jour avec succès !');
             } else {
                 alert('Erreur: ' + data.error);
                 if (photoDiv) {
