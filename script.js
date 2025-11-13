@@ -175,6 +175,153 @@ function initSubmenuToggle() {
 }
 
 // ========================================
+// PERSONNEL - AFFICHAGE ET RECHERCHE
+// ========================================
+
+async function initPersonnel() {
+    const tableContainer = document.getElementById('personnelTableContainer');
+    const loading = document.getElementById('personnelLoading');
+    const error = document.getElementById('personnelError');
+    const searchInput = document.getElementById('personnelSearch');
+    
+    if (!tableContainer) return; // Pas sur la page personnel
+    
+    try {
+        // TODO: Remplacer par l'URL de ton Worker Cloudflare
+        const response = await fetch('https://sahp.charliemoimeme.workers.dev/personnel');
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors du chargement du personnel');
+        }
+        
+        const agents = await response.json();
+        
+        loading.style.display = 'none';
+        
+        if (agents.length === 0) {
+            error.textContent = 'Aucun agent trouvé dans la base de données.';
+            error.style.display = 'block';
+            return;
+        }
+        
+        // Stocker les agents pour la recherche
+        window.allAgents = agents;
+        
+        // Afficher le tableau
+        displayPersonnel(agents);
+        
+        // Gérer la recherche
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filtered = agents.filter(agent => {
+                    return (
+                        agent.nom.toLowerCase().includes(searchTerm) ||
+                        agent.prenom.toLowerCase().includes(searchTerm) ||
+                        agent.badge.toLowerCase().includes(searchTerm) ||
+                        agent.matricule.toLowerCase().includes(searchTerm) ||
+                        agent.grade.toLowerCase().includes(searchTerm) ||
+                        agent.poste_affectation.toLowerCase().includes(searchTerm)
+                    );
+                });
+                displayPersonnel(filtered);
+            });
+        }
+        
+    } catch (err) {
+        console.error('Erreur:', err);
+        loading.style.display = 'none';
+        error.textContent = `Erreur: ${err.message}`;
+        error.style.display = 'block';
+    }
+}
+
+function displayPersonnel(agents) {
+    const container = document.getElementById('personnelTableContainer');
+    
+    if (agents.length === 0) {
+        container.innerHTML = '<p class="no-results">Aucun résultat trouvé</p>';
+        return;
+    }
+    
+    // Hiérarchie des grades par poste
+    const gradeOrder = {
+        'La Mesa': ['Commissioner', 'Deputy Commissioner', 'Assistant Commissioner', 'Chief', 'Assistant Chief'],
+        'Grapeseed': ['Captain', 'Lieutenant', 'Sergent', 'Senior Officer', 'Field Training Officer', 'Officer', 'Cadet'],
+        'Chumash': ['Captain', 'Lieutenant', 'Sergent', 'Senior Officer', 'Field Training Officer', 'Officer', 'Cadet']
+    };
+    
+    // Grouper par poste
+    const groupedByPoste = {
+        'La Mesa': [],
+        'Grapeseed': [],
+        'Chumash': []
+    };
+    
+    agents.forEach(agent => {
+        if (groupedByPoste[agent.poste_affectation]) {
+            groupedByPoste[agent.poste_affectation].push(agent);
+        }
+    });
+    
+    // Générer le HTML
+    let html = '';
+    
+    Object.keys(groupedByPoste).forEach(poste => {
+        const agentsInPoste = groupedByPoste[poste];
+        
+        if (agentsInPoste.length === 0) return;
+        
+        // Trier par hiérarchie de grade
+        agentsInPoste.sort((a, b) => {
+            const orderA = gradeOrder[poste].indexOf(a.grade);
+            const orderB = gradeOrder[poste].indexOf(b.grade);
+            return orderA - orderB;
+        });
+        
+        const posteClass = poste.toLowerCase().replace(' ', '');
+        
+        html += `
+            <div class="poste-group">
+                <div class="poste-header ${posteClass}">${poste}</div>
+                <table class="personnel-table">
+                    <thead>
+                        <tr>
+                            <th>Poste</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Grade</th>
+                            <th>Matricule</th>
+                            <th>Badge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        agentsInPoste.forEach(agent => {
+            html += `
+                <tr>
+                    <td><span class="poste-badge ${posteClass}">${agent.poste_affectation}</span></td>
+                    <td>${agent.nom}</td>
+                    <td>${agent.prenom}</td>
+                    <td>${agent.grade}</td>
+                    <td>${agent.matricule}</td>
+                    <td>${agent.badge}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// ========================================
 // INITIALISATION AU CHARGEMENT DE LA PAGE
 // ========================================
 
@@ -190,6 +337,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
     // Initialiser le sous menu de la partie interne du site
     initSubmenuToggle();
+
+    // Initialiser le tableau du personnel
+    initPersonnel();
     
     // Gérer le lightbox si présent
     const lightbox = document.getElementById('lightbox');
