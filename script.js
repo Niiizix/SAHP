@@ -178,6 +178,10 @@ function initSubmenuToggle() {
 // PERSONNEL - AFFICHAGE ET RECHERCHE
 // ========================================
 
+// ========================================
+// PERSONNEL - AFFICHAGE ET RECHERCHE
+// ========================================
+
 async function initPersonnel() {
     const tableContainer = document.getElementById('personnelTableContainer');
     const loading = document.getElementById('personnelLoading');
@@ -187,7 +191,6 @@ async function initPersonnel() {
     if (!tableContainer) return; // Pas sur la page personnel
     
     try {
-        // TODO: Remplacer par l'URL de ton Worker Cloudflare
         const response = await fetch('https://sahp.charliemoimeme.workers.dev/personnel');
         
         if (!response.ok) {
