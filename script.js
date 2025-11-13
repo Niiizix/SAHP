@@ -244,14 +244,12 @@ function displayPersonnel(agents) {
         return;
     }
     
-    // Hiérarchie des grades par poste
     const gradeOrder = {
         'La Mesa': ['Commissioner', 'Deputy Commissioner', 'Assistant Commissioner', 'Chief', 'Assistant Chief'],
         'Grapeseed': ['Captain', 'Lieutenant', 'Sergent', 'Senior Officer', 'Field Training Officer', 'Officer', 'Cadet'],
         'Chumash': ['Captain', 'Lieutenant', 'Sergent', 'Senior Officer', 'Field Training Officer', 'Officer', 'Cadet']
     };
     
-    // Grouper par poste
     const groupedByPoste = {
         'La Mesa': [],
         'Grapeseed': [],
@@ -264,7 +262,6 @@ function displayPersonnel(agents) {
         }
     });
     
-    // Générer le HTML
     let html = '';
     
     Object.keys(groupedByPoste).forEach(poste => {
@@ -272,7 +269,6 @@ function displayPersonnel(agents) {
         
         if (agentsInPoste.length === 0) return;
         
-        // Trier par hiérarchie de grade
         agentsInPoste.sort((a, b) => {
             const orderA = gradeOrder[poste].indexOf(a.grade);
             const orderB = gradeOrder[poste].indexOf(b.grade);
@@ -300,7 +296,7 @@ function displayPersonnel(agents) {
         
         agentsInPoste.forEach(agent => {
             html += `
-                <tr>
+                <tr class="agent-row" data-agent-id="${agent.id}">
                     <td><span class="poste-badge ${posteClass}">${agent.poste_affectation}</span></td>
                     <td>${agent.nom}</td>
                     <td>${agent.prenom}</td>
@@ -319,6 +315,143 @@ function displayPersonnel(agents) {
     });
     
     container.innerHTML = html;
+    
+    // Ajouter les event listeners pour les clics
+    document.querySelectorAll('.agent-row').forEach(row => {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function() {
+            const agentId = this.dataset.agentId;
+            openAgentModal(agentId);
+        });
+    });
+}
+
+// ========================================
+// MODAL AGENT DÉTAIL
+// ========================================
+
+async function openAgentModal(agentId) {
+    try {
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentId}`);
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors du chargement des détails');
+        }
+        
+        const agent = await response.json();
+        
+        displayAgentModal(agent);
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Impossible de charger les détails de l\'agent');
+    }
+}
+
+function displayAgentModal(agent) {
+    // Créer la modal si elle n'existe pas
+    let modal = document.getElementById('agentModal');
+    
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'agentModal';
+        modal.className = 'agent-modal';
+        document.body.appendChild(modal);
+    }
+    
+    const photoUrl = agent.photo_url || '';
+    const photoHTML = photoUrl 
+        ? `<img src="${photoUrl}" alt="Photo ${agent.prenom} ${agent.nom}">`
+        : `<div class="agent-photo-placeholder">👤</div>`;
+    
+    const dateEntree = agent.date_entree ? new Date(agent.date_entree).toLocaleDateString('fr-FR') : 'Non renseignée';
+    
+    modal.innerHTML = `
+        <div class="agent-modal-content">
+            <span class="modal-close" onclick="closeAgentModal()">&times;</span>
+            
+            <div class="agent-sidebar">
+                <div class="agent-photo">
+                    ${photoHTML}
+                </div>
+                <button class="upload-photo-btn" onclick="uploadPhoto(${agent.id})">Changer la photo</button>
+                
+                <div class="agent-grade-badge">${agent.grade}</div>
+                <div class="agent-fullname">${agent.prenom} ${agent.nom}</div>
+                
+                <div class="agent-info-list">
+                    <div class="agent-info-item">
+                        <div class="agent-info-label">Numéro de téléphone</div>
+                        <div class="agent-info-value">${agent.numero_telephone || 'Non renseigné'}</div>
+                    </div>
+                    
+                    <div class="agent-info-item">
+                        <div class="agent-info-label">Matricule</div>
+                        <div class="agent-info-value">${agent.matricule}</div>
+                    </div>
+                    
+                    <div class="agent-info-item">
+                        <div class="agent-info-label">Badge</div>
+                        <div class="agent-info-value">${agent.badge}</div>
+                    </div>
+                    
+                    <div class="agent-info-item">
+                        <div class="agent-info-label">Date d'entrée</div>
+                        <div class="agent-info-value">${dateEntree}</div>
+                    </div>
+                    
+                    ${agent.specialisation_1 || agent.specialisation_2 ? `
+                    <div class="agent-info-item">
+                        <div class="agent-info-label">Spécialisations</div>
+                        <div class="agent-info-value">
+                            ${agent.specialisation_1 || ''}<br>
+                            ${agent.specialisation_2 || ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    ${agent.qualification_1 || agent.qualification_2 ? `
+                    <div class="agent-info-item">
+                        <div class="agent-info-label">Qualifications</div>
+                        <div class="agent-info-value">
+                            ${agent.qualification_1 || ''}<br>
+                            ${agent.qualification_2 || ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <div class="agent-main-content">
+                <h3>Informations sensibles</h3>
+                <div class="info-placeholder">
+                    <p>Section en cours de développement</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Sanctions, médailles, absences...</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.classList.add('active');
+    
+    // Fermer en cliquant en dehors
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeAgentModal();
+        }
+    });
+}
+
+function closeAgentModal() {
+    const modal = document.getElementById('agentModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function uploadPhoto(agentId) {
+    alert('Fonction d\'upload en cours de développement. Agent ID: ' + agentId);
+    // On implémentera l'upload R2 juste après
 }
 
 // ========================================
