@@ -387,10 +387,8 @@ function displayAgentModal(agent) {
         document.body.appendChild(modal);
     }
     
-    const photoUrl = agent.photo_url || '';
-    const photoHTML = photoUrl 
-        ? `<img src="${photoUrl}" alt="Photo ${agent.prenom} ${agent.nom}">`
-        : `<div class="agent-photo-placeholder">👤</div>`;
+    const photoUrl = agent.photo_url || 'imgs/default-agent.png'; // Ou le chemin de ton image par défaut
+    const photoHTML = `<img src="${photoUrl}" alt="Photo ${agent.prenom} ${agent.nom}">`;
     
     const dateEntree = agent.date_entree ? formatDate(agent.date_entree) : 'Non renseignée';
     
