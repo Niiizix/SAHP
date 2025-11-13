@@ -529,6 +529,166 @@ body {
     color: #1e293b;
 }
 
+/* PAGE PERSONNEL */
+
+.personnel-bg {
+    background-image: url(imgs/HERO_PERSONNEL.png);
+}
+
+.personnel-section {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    margin: clamp(1rem, 2vw, 2rem);
+    margin-left: max(2rem, 2vw);
+    margin-right: max(2rem, 2vw);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1400px;
+    width: calc(100% - 4rem);
+    align-self: center;
+}
+
+.personnel-section h2 {
+    color: #273c5b;
+    text-align: center;
+    font-size: clamp(1.3rem, 2vw + 0.5rem, 1.8rem);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.search-bar {
+    margin-bottom: 2rem;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: #273c5b;
+    box-shadow: 0 0 0 3px rgba(39, 60, 91, 0.1);
+}
+
+.personnel-loading {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+    font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
+}
+
+.personnel-error {
+    text-align: center;
+    color: #dc2626;
+    padding: 2rem;
+    font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
+}
+
+.poste-group {
+    margin-bottom: 2.5rem;
+}
+
+.poste-group:last-child {
+    margin-bottom: 0;
+}
+
+.poste-header {
+    padding: 1rem 1.5rem;
+    border-radius: 8px 8px 0 0;
+    color: white;
+    font-weight: 600;
+    font-size: clamp(1.1rem, 1.5vw + 0.3rem, 1.3rem);
+    text-align: center;
+}
+
+.poste-header.lamesa {
+    background: #f59e0b;
+}
+
+.poste-header.grapeseed {
+    background: #10b981;
+}
+
+.poste-header.chumash {
+    background: #273c5b;
+}
+
+.personnel-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+}
+
+.personnel-table thead {
+    background: #f1f5f9;
+}
+
+.personnel-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #273c5b;
+    font-size: clamp(0.85rem, 0.95vw + 0.3rem, 0.95rem);
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.personnel-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.personnel-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.personnel-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+    font-size: clamp(0.85rem, 0.9vw + 0.3rem, 0.9rem);
+}
+
+.personnel-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.poste-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: clamp(0.8rem, 0.85vw + 0.2rem, 0.85rem);
+    color: white;
+}
+
+.poste-badge.lamesa {
+    background: #f59e0b;
+}
+
+.poste-badge.grapeseed {
+    background: #10b981;
+}
+
+.poste-badge.chumash {
+    background: #273c5b;
+}
+
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
+}
+
 /* Footer */
 
 .footer {
