@@ -387,7 +387,7 @@ function displayAgentModal(agent) {
         document.body.appendChild(modal);
     }
     
-    const photoUrl = agent.photo_url || 'imgs/default-agents.png'; // Ou le chemin de ton image par défaut
+    const photoUrl = agent.photo_url || 'imgs/default-agents.png';
     const photoHTML = `<img src="${photoUrl}" alt="Photo ${agent.prenom} ${agent.nom}">`;
     
     const dateEntree = agent.date_entree ? formatDate(agent.date_entree) : 'Non renseignée';
@@ -473,8 +473,67 @@ function closeAgentModal() {
 }
 
 function uploadPhoto(agentId) {
-    alert('Fonction d\'upload en cours de développement. Agent ID: ' + agentId);
-    // On implémentera l'upload R2 juste après
+    // Créer un input file caché
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = async function(e) {
+        const file = e.target.files[0];
+        
+        if (!file) return;
+        
+        // Vérifier la taille (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('L\'image est trop volumineuse (max 5MB)');
+            return;
+        }
+        
+        // Créer un FormData
+        const formData = new FormData();
+        formData.append('agentId', agentId);
+        formData.append('photo', file);
+        
+        try {
+            // Afficher un loader
+            const photoDiv = document.querySelector('.agent-photo');
+            if (photoDiv) {
+                photoDiv.style.opacity = '0.5';
+                photoDiv.style.pointerEvents = 'none';
+            }
+            
+            const response = await fetch('https://sahp.charliemoimeme.workers.dev/upload-photo', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Recharger la modal avec la nouvelle photo
+                openAgentModal(agentId);
+                alert('Photo mise à jour avec succès !');
+            } else {
+                alert('Erreur: ' + data.error);
+                if (photoDiv) {
+                    photoDiv.style.opacity = '1';
+                    photoDiv.style.pointerEvents = 'auto';
+                }
+            }
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'upload: ' + error.message);
+            const photoDiv = document.querySelector('.agent-photo');
+            if (photoDiv) {
+                photoDiv.style.opacity = '1';
+                photoDiv.style.pointerEvents = 'auto';
+            }
+        }
+    };
+    
+    // Déclencher le sélecteur de fichier
+    input.click();
 }
 
 // ========================================
@@ -515,4 +574,3 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
