@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAHP - Personnel</title>
+    <link rel="stylesheet" href="intra-style.css">
+    <link rel="icon" type="image/x-icon" href="imgs/ICONE.ico">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <img src="imgs/LOGO.png" alt="SAHP Badge">
+            </div>
+            <div class="agent-details">
+                <p class="agent-name" id="agentName">Chargement...</p>
+                <p class="agent-badge" id="agentBadge">Badge: ---</p>
+                <p class="agent-grade" id="agentGrade">Grade: ---</p>
+            </div>
+        </div>
+        
+        <nav class="nav">
+            <ul>
+                <li><a href="dashboard.html">
+                    <span class="nav-dot">●</span>
+                    <span class="nav-text">Tableau de bord</span>
+                </a></li>
+                
+                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <span class="nav-dot">●</span>
+                        <span class="nav-text">Divisions</span>
+                        <span class="arrow">▶</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="has-submenu">
+                            <a href="#" class="submenu-toggle">
+                                <span class="nav-text">CVS</span>
+                                <span class="arrow">▶</span>
+                            </a>
+                            <ul class="submenu submenu-level-2">
+                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
+                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="has-submenu">
+                            <a href="#" class="submenu-toggle">
+                                <span class="nav-text">PSD</span>
+                                <span class="arrow">▶</span>
+                            </a>
+                            <ul class="submenu submenu-level-2">
+                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
+                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="has-submenu">
+                            <a href="#" class="submenu-toggle">
+                                <span class="nav-text">SOU</span>
+                                <span class="arrow">▶</span>
+                            </a>
+                            <ul class="submenu submenu-level-2">
+                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
+                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="has-submenu">
+                            <a href="#" class="submenu-toggle">
+                                <span class="nav-text">OAO</span>
+                                <span class="arrow">▶</span>
+                            </a>
+                            <ul class="submenu submenu-level-2">
+                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
+                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="has-submenu">
+                            <a href="#" class="submenu-toggle">
+                                <span class="nav-text">OCI</span>
+                                <span class="arrow">▶</span>
+                            </a>
+                            <ul class="submenu submenu-level-2">
+                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
+                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                
+                <li><a href="personnel.html" class="active">
+                    <span class="nav-dot">●</span>
+                    <span class="nav-text">Personnel</span>
+                </a></li>
+                <li><a href="#">
+                    <span class="nav-dot">●</span>
+                    <span class="nav-text">Rapports</span>
+                </a></li>
+                <li><a href="#">
+                    <span class="nav-dot">●</span>
+                    <span class="nav-text">Logs</span>
+                </a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="hero-header personnel-bg">
+            <a href="#" class="mail-icon">
+                <img src="imgs/mail.png" alt="Mail">
+            </a>
+        </header>
+
+        <section class="personnel-section">
+            <h2>Personnel de la SAHP</h2>
+            
+            <div class="search-bar">
+                <input type="text" id="personnelSearch" placeholder="Rechercher un agent (nom, prénom, badge, matricule, grade, poste...)">
+            </div>
+
+            <div class="personnel-loading" id="personnelLoading">Chargement du personnel...</div>
+            <div class="personnel-error" id="personnelError" style="display: none;"></div>
+
+            <div id="personnelTableContainer"></div>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; MST - San Andreas Highway Patrol. Tous droits réservés.</p>
+        </footer>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
