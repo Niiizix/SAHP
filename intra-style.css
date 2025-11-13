@@ -689,6 +689,195 @@ body {
     font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
 }
 
+/* MODAL AGENT DETAIL */
+
+.agent-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.agent-modal.active {
+    display: flex;
+}
+
+.agent-modal-content {
+    background: #1e293b;
+    border-radius: 12px;
+    max-width: 1200px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.3);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.agent-sidebar {
+    width: 300px;
+    background: #273c5b;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid #334155;
+}
+
+.agent-photo {
+    width: 180px;
+    height: 180px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #1e293b;
+    margin-bottom: 1rem;
+    border: 3px solid #f59e0b;
+    position: relative;
+}
+
+.agent-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.agent-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: #64748b;
+}
+
+.upload-photo-btn {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f59e0b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.3s ease;
+}
+
+.upload-photo-btn:hover {
+    background: #d97706;
+}
+
+.agent-grade-badge {
+    background: #f59e0b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.agent-fullname {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.agent-info-list {
+    width: 100%;
+}
+
+.agent-info-item {
+    margin-bottom: 1.2rem;
+}
+
+.agent-info-label {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.3rem;
+}
+
+.agent-info-value {
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.agent-main-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    color: white;
+}
+
+.agent-main-content h3 {
+    color: #f59e0b;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.agent-main-content p {
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+.info-placeholder {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed #475569;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    color: #64748b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .agent-modal-content {
+        flex-direction: column;
+    }
+    
+    .agent-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #334155;
+    }
+}
+
 /* Footer */
 
 .footer {
