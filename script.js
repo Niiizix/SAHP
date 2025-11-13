@@ -387,7 +387,7 @@ function displayAgentModal(agent) {
         document.body.appendChild(modal);
     }
     
-    const photoUrl = agent.photo_url || 'imgs/default-agents.png';
+    const photoUrl = agent.photo_url || 'imgs/default-agent.png';
     const photoHTML = `<img src="${photoUrl}" alt="Photo ${agent.prenom} ${agent.nom}">`;
     
     const dateEntree = agent.date_entree ? formatDate(agent.date_entree) : 'Non renseignée';
@@ -447,10 +447,25 @@ function displayAgentModal(agent) {
             </div>
             
             <div class="agent-main-content">
-                <h3>Informations sensibles</h3>
-                <div class="info-placeholder">
-                    <p>📋 Section en cours de développement</p>
-                    <p>Sanctions • Médailles • Absences</p>
+                <div class="agent-tabs">
+                    <button class="agent-tab active" data-tab="medailles">Médailles</button>
+                    <button class="agent-tab" data-tab="recommandations">Recommandations</button>
+                    <button class="agent-tab" data-tab="sanctions">Sanctions</button>
+                </div>
+                
+                <div id="medailles-tab" class="tab-content active">
+                    <button class="add-item-btn" onclick="openAddMedailleModal(${agent.id})">+ Ajouter une Médaille</button>
+                    <div id="medailles-list" class="items-list"></div>
+                </div>
+                
+                <div id="recommandations-tab" class="tab-content">
+                    <button class="add-item-btn" onclick="openAddRecommandationModal(${agent.id})">+ Ajouter une Recommandation</button>
+                    <div id="recommandations-list" class="items-list"></div>
+                </div>
+                
+                <div id="sanctions-tab" class="tab-content">
+                    <button class="add-item-btn" onclick="openAddSanctionModal(${agent.id})">+ Ajouter une Sanction</button>
+                    <div id="sanctions-list" class="items-list"></div>
                 </div>
             </div>
         </div>
@@ -463,6 +478,14 @@ function displayAgentModal(agent) {
             closeAgentModal();
         }
     });
+    
+    // Gérer les tabs
+    initTabs();
+    
+    // Charger les données
+    loadAgentMedailles(agent.id);
+    loadAgentRecommandations(agent.id);
+    loadAgentSanctions(agent.id);
 }
 
 function closeAgentModal() {
@@ -533,6 +556,397 @@ function uploadPhoto(agentId) {
     
     // Déclencher le sélecteur de fichier
     input.click();
+}
+
+// ========================================
+// TABS NAVIGATION
+// ========================================
+
+function initTabs() {
+    const tabs = document.querySelectorAll('.agent-tab');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+            
+            // Désactiver tous les tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Activer le tab cliqué
+            this.classList.add('active');
+            document.getElementById(`${targetTab}-tab`).classList.add('active');
+        });
+    });
+}
+
+// ========================================
+// MÉDAILLES
+// ========================================
+
+async function loadAgentMedailles(agentId) {
+    try {
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentId}/medailles`);
+        const medailles = await response.json();
+        
+        const list = document.getElementById('medailles-list');
+        
+        if (medailles.length === 0) {
+            list.innerHTML = '<div class="empty-state"><p>Aucune médaille attribuée</p></div>';
+            return;
+        }
+        
+        list.innerHTML = medailles.map(m => `
+            <div class="item-card">
+                <div class="item-content">
+                    <div class="item-title">🏅 ${m.nom}</div>
+                    <div class="item-description">${m.description || ''}</div>
+                    <div class="item-meta">
+                        <span>Attribuée par: ${m.attribue_par}</span>
+                        <span>Le: ${formatDateTime(m.date_attribution)}</span>
+                    </div>
+                </div>
+                <button class="delete-btn" onclick="deleteAgentMedaille(${m.id}, ${agentId})">🗑️</button>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function openAddMedailleModal(agentId) {
+    try {
+        // Récupérer la liste des médailles disponibles
+        const response = await fetch('https://sahp.charliemoimeme.workers.dev/medailles');
+        const medailles = await response.json();
+        
+        // Créer la modal
+        const modal = document.createElement('div');
+        modal.className = 'form-modal active';
+        modal.innerHTML = `
+            <div class="form-modal-content">
+                <h3>Ajouter une Médaille</h3>
+                <form id="addMedailleForm">
+                    <div class="form-group">
+                        <label>Sélectionner une médaille</label>
+                        <select id="medailleSelect" required>
+                            <option value="">-- Choisir --</option>
+                            ${medailles.map(m => `<option value="${m.id}">${m.nom}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="form-btn cancel" onclick="closeFormModal()">Annuler</button>
+                        <button type="submit" class="form-btn submit">Valider</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        document.getElementById('addMedailleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const medailleId = document.getElementById('medailleSelect').value;
+            const agentData = JSON.parse(sessionStorage.getItem('agent'));
+            
+            const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/add-medaille', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agent_id: agentId,
+                    medaille_id: medailleId,
+                    attribue_par: `${agentData.prenom} ${agentData.nom}`
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                closeFormModal();
+                loadAgentMedailles(agentId);
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors du chargement des médailles');
+    }
+}
+
+async function deleteAgentMedaille(medailleId, agentId) {
+    if (!confirm('Supprimer cette médaille ?')) return;
+    
+    try {
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/medaille/${medailleId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            loadAgentMedailles(agentId);
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la suppression');
+    }
+}
+
+// ========================================
+// RECOMMANDATIONS
+// ========================================
+
+async function loadAgentRecommandations(agentId) {
+    try {
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentId}/recommandations`);
+        const recommandations = await response.json();
+        
+        const list = document.getElementById('recommandations-list');
+        
+        if (recommandations.length === 0) {
+            list.innerHTML = '<div class="empty-state"><p>Aucune recommandation</p></div>';
+            return;
+        }
+        
+        list.innerHTML = recommandations.map(r => `
+            <div class="item-card">
+                <div class="item-content">
+                    <div class="item-description">${r.texte}</div>
+                    <div class="item-meta">
+                        <span>Ajoutée par: ${r.ajoutee_par}</span>
+                        <span>Le: ${formatDateTime(r.date_ajout)}</span>
+                    </div>
+                </div>
+                <button class="delete-btn" onclick="deleteAgentRecommandation(${r.id}, ${agentId})">🗑️</button>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function openAddRecommandationModal(agentId) {
+    const modal = document.createElement('div');
+    modal.className = 'form-modal active';
+    modal.innerHTML = `
+        <div class="form-modal-content">
+            <h3>Ajouter une Recommandation</h3>
+            <form id="addRecommandationForm">
+                <div class="form-group">
+                    <label>Texte de la recommandation</label>
+                    <textarea id="recommandationTexte" required placeholder="Entrez la recommandation..."></textarea>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="form-btn cancel" onclick="closeFormModal()">Annuler</button>
+                    <button type="submit" class="form-btn submit">Valider</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    document.getElementById('addRecommandationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const texte = document.getElementById('recommandationTexte').value;
+        const agentData = JSON.parse(sessionStorage.getItem('agent'));
+        
+        const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/add-recommandation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                agent_id: agentId,
+                texte: texte,
+                ajoutee_par: `${agentData.prenom} ${agentData.nom}`
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            closeFormModal();
+            loadAgentRecommandations(agentId);
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    });
+}
+
+async function deleteAgentRecommandation(recommandationId, agentId) {
+    if (!confirm('Supprimer cette recommandation ?')) return;
+    
+    try {
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/recommandation/${recommandationId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            loadAgentRecommandations(agentId);
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la suppression');
+    }
+}
+
+// ========================================
+// SANCTIONS
+// ========================================
+
+async function loadAgentSanctions(agentId) {
+    try {
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentId}/sanctions`);
+        const sanctions = await response.json();
+        
+        const list = document.getElementById('sanctions-list');
+        
+        if (sanctions.length === 0) {
+            list.innerHTML = '<div class="empty-state"><p>Aucune sanction</p></div>';
+            return;
+        }
+        
+        list.innerHTML = sanctions.map(s => `
+            <div class="item-card sanction severity-${s.gravite}">
+                <div class="item-content">
+                    <div class="item-title">${s.nom}</div>
+                    <div class="item-description">${s.explication}</div>
+                    <div class="item-meta">
+                        <span>Ajoutée par: ${s.ajoutee_par}</span>
+                        <span>Le: ${formatDateTime(s.date_ajout)}</span>
+                    </div>
+                </div>
+                <button class="delete-btn" onclick="deleteAgentSanction(${s.id}, ${agentId})">🗑️</button>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function openAddSanctionModal(agentId) {
+    try {
+        const response = await fetch('https://sahp.charliemoimeme.workers.dev/sanctions-types');
+        const sanctionsTypes = await response.json();
+        
+        const modal = document.createElement('div');
+        modal.className = 'form-modal active';
+        modal.innerHTML = `
+            <div class="form-modal-content">
+                <h3>Ajouter une Sanction</h3>
+                <form id="addSanctionForm">
+                    <div class="form-group">
+                        <label>Type de sanction</label>
+                        <select id="sanctionTypeSelect" required>
+                            <option value="">-- Choisir --</option>
+                            ${sanctionsTypes.map(s => `<option value="${s.id}">${s.nom}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Explication</label>
+                        <textarea id="sanctionExplication" required placeholder="Expliquez la raison de la sanction..."></textarea>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="form-btn cancel" onclick="closeFormModal()">Annuler</button>
+                        <button type="submit" class="form-btn submit">Valider</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        document.getElementById('addSanctionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const sanctionTypeId = document.getElementById('sanctionTypeSelect').value;
+            const explication = document.getElementById('sanctionExplication').value;
+            const agentData = JSON.parse(sessionStorage.getItem('agent'));
+            
+            const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/add-sanction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agent_id: agentId,
+                    sanction_type_id: sanctionTypeId,
+                    explication: explication,
+                    ajoutee_par: `${agentData.prenom} ${agentData.nom}`
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                closeFormModal();
+                loadAgentSanctions(agentId);
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors du chargement des sanctions');
+    }
+}
+
+async function deleteAgentSanction(sanctionId, agentId) {
+    if (!confirm('Supprimer cette sanction ?')) return;
+    
+    try {
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/sanction/${sanctionId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            loadAgentSanctions(agentId);
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la suppression');
+    }
+}
+
+// ========================================
+// UTILITAIRES
+// ========================================
+
+function closeFormModal() {
+    const modal = document.querySelector('.form-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function formatDateTime(dateString) {
+    if (!dateString) return 'Date inconnue';
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Date invalide';
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${day}/${month}/${year} à ${hours}:${minutes}`;
 }
 
 // ========================================
