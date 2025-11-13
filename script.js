@@ -352,7 +352,6 @@ async function openAgentModal(agentId) {
 }
 
 function displayAgentModal(agent) {
-    // Créer la modal si elle n'existe pas
     let modal = document.getElementById('agentModal');
     
     if (!modal) {
@@ -374,17 +373,17 @@ function displayAgentModal(agent) {
             <span class="modal-close" onclick="closeAgentModal()">&times;</span>
             
             <div class="agent-sidebar">
-                <div class="agent-photo">
+                <div class="agent-photo" onclick="uploadPhoto(${agent.id})">
                     ${photoHTML}
+                    <div class="agent-photo-overlay">Cliquer pour changer</div>
                 </div>
-                <button class="upload-photo-btn" onclick="uploadPhoto(${agent.id})">Changer la photo</button>
                 
                 <div class="agent-grade-badge">${agent.grade}</div>
                 <div class="agent-fullname">${agent.prenom} ${agent.nom}</div>
                 
                 <div class="agent-info-list">
                     <div class="agent-info-item">
-                        <div class="agent-info-label">Numéro de téléphone</div>
+                        <div class="agent-info-label">Téléphone</div>
                         <div class="agent-info-value">${agent.numero_telephone || 'Non renseigné'}</div>
                     </div>
                     
@@ -407,8 +406,7 @@ function displayAgentModal(agent) {
                     <div class="agent-info-item">
                         <div class="agent-info-label">Spécialisations</div>
                         <div class="agent-info-value">
-                            ${agent.specialisation_1 || ''}<br>
-                            ${agent.specialisation_2 || ''}
+                            ${[agent.specialisation_1, agent.specialisation_2].filter(Boolean).join('<br>')}
                         </div>
                     </div>
                     ` : ''}
@@ -417,8 +415,7 @@ function displayAgentModal(agent) {
                     <div class="agent-info-item">
                         <div class="agent-info-label">Qualifications</div>
                         <div class="agent-info-value">
-                            ${agent.qualification_1 || ''}<br>
-                            ${agent.qualification_2 || ''}
+                            ${[agent.qualification_1, agent.qualification_2].filter(Boolean).join('<br>')}
                         </div>
                     </div>
                     ` : ''}
@@ -428,8 +425,8 @@ function displayAgentModal(agent) {
             <div class="agent-main-content">
                 <h3>Informations sensibles</h3>
                 <div class="info-placeholder">
-                    <p>Section en cours de développement</p>
-                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Sanctions, médailles, absences...</p>
+                    <p>📋 Section en cours de développement</p>
+                    <p>Sanctions • Médailles • Absences</p>
                 </div>
             </div>
         </div>
@@ -437,7 +434,6 @@ function displayAgentModal(agent) {
     
     modal.classList.add('active');
     
-    // Fermer en cliquant en dehors
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeAgentModal();
