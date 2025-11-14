@@ -1023,10 +1023,6 @@ function openAddAgentModal() {
                         <input type="date" id="agent_date_entree" value="${today}" required>
                     </div>
                     <div class="form-group">
-                        <label>Divisions</label>
-                        <input type="text" id="agent_divisions" placeholder="Patrouille, Intervention">
-                    </div>
-                    <div class="form-group">
                         <label>Spécialisation 1</label>
                         <input type="text" id="agent_specialisation_1">
                     </div>
@@ -1066,7 +1062,6 @@ function openAddAgentModal() {
             grade: document.getElementById('agent_grade').value,
             poste_affectation: document.getElementById('agent_poste').value,
             date_entree: document.getElementById('agent_date_entree').value,
-            divisions: document.getElementById('agent_divisions').value,
             specialisation_1: document.getElementById('agent_specialisation_1').value,
             specialisation_2: document.getElementById('agent_specialisation_2').value,
             qualification_1: document.getElementById('agent_qualification_1').value,
@@ -1147,10 +1142,6 @@ async function openEditAgentModal(agentId) {
                         <div class="form-group">
                             <label>Date d'entrée *</label>
                             <input type="date" id="edit_date_entree" value="${agent.date_entree || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Divisions</label>
-                            <input type="text" id="edit_divisions" value="${agent.divisions || ''}">
                         </div>
                         <div class="form-group">
                             <label>Spécialisation 1</label>
