@@ -113,8 +113,9 @@
         <section class="personnel-section">
             <h2>Personnel de la SAHP</h2>
             
-            <div class="search-bar">
-                <input type="text" id="personnelSearch" placeholder="Rechercher un agent (nom, prénom, badge, matricule, grade, poste...)">
+            <div class="search-bar-container">
+                <input type="text" id="personnelSearch" class="search-input" placeholder="Rechercher un agent (nom, prénom, badge, matricule, grade, poste...)">
+                <button class="add-agent-btn" onclick="openAddAgentModal()">+ Nouvel Agent</button>
             </div>
 
             <div class="personnel-loading" id="personnelLoading">Chargement du personnel...</div>
