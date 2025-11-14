@@ -950,6 +950,293 @@ function formatDateTime(dateString) {
 }
 
 // ========================================
+// GESTION AGENTS (CRÉER / MODIFIER)
+// ========================================
+
+const GRADES_LIST = [
+    'Commissioner',
+    'Deputy Commissioner',
+    'Assistant Commissioner',
+    'Chief',
+    'Assistant Chief',
+    'Captain',
+    'Lieutenant',
+    'Sergent',
+    'Senior Officer',
+    'Field Training Officer',
+    'Officer',
+    'Cadet'
+];
+
+const POSTES_LIST = ['La Mesa', 'Grapeseed', 'Chumash'];
+
+function openAddAgentModal() {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const modal = document.createElement('div');
+    modal.className = 'agent-form-modal active';
+    modal.innerHTML = `
+        <div class="agent-form-content">
+            <h3>Nouvel Agent</h3>
+            <form id="addAgentForm">
+                <div class="agent-form-grid">
+                    <div class="form-group">
+                        <label>Prénom *</label>
+                        <input type="text" id="agent_prenom" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nom *</label>
+                        <input type="text" id="agent_nom" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Numéro de téléphone *</label>
+                        <input type="text" id="agent_telephone" required placeholder="555-0123">
+                    </div>
+                    <div class="form-group">
+                        <label>Matricule *</label>
+                        <input type="text" id="agent_matricule" required placeholder="MAT-2024-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Badge *</label>
+                        <input type="text" id="agent_badge" required placeholder="BADGE-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Code d'accès *</label>
+                        <input type="password" id="agent_code_acces" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Grade *</label>
+                        <select id="agent_grade" required>
+                            <option value="">-- Sélectionner --</option>
+                            ${GRADES_LIST.map(g => `<option value="${g}">${g}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Poste d'affectation *</label>
+                        <select id="agent_poste" required>
+                            <option value="">-- Sélectionner --</option>
+                            ${POSTES_LIST.map(p => `<option value="${p}">${p}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date d'entrée *</label>
+                        <input type="date" id="agent_date_entree" value="${today}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Divisions</label>
+                        <input type="text" id="agent_divisions" placeholder="Patrouille, Intervention">
+                    </div>
+                    <div class="form-group">
+                        <label>Spécialisation 1</label>
+                        <input type="text" id="agent_specialisation_1">
+                    </div>
+                    <div class="form-group">
+                        <label>Spécialisation 2</label>
+                        <input type="text" id="agent_specialisation_2">
+                    </div>
+                    <div class="form-group">
+                        <label>Qualification 1</label>
+                        <input type="text" id="agent_qualification_1">
+                    </div>
+                    <div class="form-group">
+                        <label>Qualification 2</label>
+                        <input type="text" id="agent_qualification_2">
+                    </div>
+                </div>
+                <div class="agent-form-buttons">
+                    <button type="button" class="form-btn cancel" onclick="closeAgentFormModal()">Annuler</button>
+                    <button type="submit" class="form-btn submit">Créer l'agent</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    document.getElementById('addAgentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const agentData = {
+            prenom: document.getElementById('agent_prenom').value,
+            nom: document.getElementById('agent_nom').value,
+            numero_telephone: document.getElementById('agent_telephone').value,
+            matricule: document.getElementById('agent_matricule').value,
+            badge: document.getElementById('agent_badge').value,
+            code_acces: document.getElementById('agent_code_acces').value,
+            grade: document.getElementById('agent_grade').value,
+            poste_affectation: document.getElementById('agent_poste').value,
+            date_entree: document.getElementById('agent_date_entree').value,
+            divisions: document.getElementById('agent_divisions').value,
+            specialisation_1: document.getElementById('agent_specialisation_1').value,
+            specialisation_2: document.getElementById('agent_specialisation_2').value,
+            qualification_1: document.getElementById('agent_qualification_1').value,
+            qualification_2: document.getElementById('agent_qualification_2').value
+        };
+        
+        try {
+            const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(agentData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                closeAgentFormModal();
+                alert('Agent créé avec succès !');
+                initPersonnel(); // Recharger la liste
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la création');
+        }
+    });
+}
+
+async function openEditAgentModal(agentId) {
+    try {
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentId}`);
+        const agent = await response.json();
+        
+        const modal = document.createElement('div');
+        modal.className = 'agent-form-modal active';
+        modal.innerHTML = `
+            <div class="agent-form-content">
+                <h3>Modifier l'agent</h3>
+                <form id="editAgentForm">
+                    <div class="agent-form-grid">
+                        <div class="form-group">
+                            <label>Prénom *</label>
+                            <input type="text" id="edit_prenom" value="${agent.prenom}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nom *</label>
+                            <input type="text" id="edit_nom" value="${agent.nom}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Numéro de téléphone *</label>
+                            <input type="text" id="edit_telephone" value="${agent.numero_telephone || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Matricule *</label>
+                            <input type="text" id="edit_matricule" value="${agent.matricule}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Badge *</label>
+                            <input type="text" id="edit_badge" value="${agent.badge}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Code d'accès *</label>
+                            <input type="password" id="edit_code_acces" value="${agent.code_acces}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Grade *</label>
+                            <select id="edit_grade" required>
+                                ${GRADES_LIST.map(g => `<option value="${g}" ${g === agent.grade ? 'selected' : ''}>${g}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Poste d'affectation *</label>
+                            <select id="edit_poste" required>
+                                ${POSTES_LIST.map(p => `<option value="${p}" ${p === agent.poste_affectation ? 'selected' : ''}>${p}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date d'entrée *</label>
+                            <input type="date" id="edit_date_entree" value="${agent.date_entree || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Divisions</label>
+                            <input type="text" id="edit_divisions" value="${agent.divisions || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Spécialisation 1</label>
+                            <input type="text" id="edit_specialisation_1" value="${agent.specialisation_1 || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Spécialisation 2</label>
+                            <input type="text" id="edit_specialisation_2" value="${agent.specialisation_2 || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Qualification 1</label>
+                            <input type="text" id="edit_qualification_1" value="${agent.qualification_1 || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Qualification 2</label>
+                            <input type="text" id="edit_qualification_2" value="${agent.qualification_2 || ''}">
+                        </div>
+                    </div>
+                    <div class="agent-form-buttons">
+                        <button type="button" class="form-btn cancel" onclick="closeAgentFormModal()">Annuler</button>
+                        <button type="submit" class="form-btn submit">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        document.getElementById('editAgentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const agentData = {
+                id: agentId,
+                prenom: document.getElementById('edit_prenom').value,
+                nom: document.getElementById('edit_nom').value,
+                numero_telephone: document.getElementById('edit_telephone').value,
+                matricule: document.getElementById('edit_matricule').value,
+                badge: document.getElementById('edit_badge').value,
+                code_acces: document.getElementById('edit_code_acces').value,
+                grade: document.getElementById('edit_grade').value,
+                poste_affectation: document.getElementById('edit_poste').value,
+                date_entree: document.getElementById('edit_date_entree').value,
+                divisions: document.getElementById('edit_divisions').value,
+                specialisation_1: document.getElementById('edit_specialisation_1').value,
+                specialisation_2: document.getElementById('edit_specialisation_2').value,
+                qualification_1: document.getElementById('edit_qualification_1').value,
+                qualification_2: document.getElementById('edit_qualification_2').value
+            };
+            
+            try {
+                const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(agentData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeAgentFormModal();
+                    closeAgentModal();
+                    alert('Agent modifié avec succès !');
+                    initPersonnel(); // Recharger la liste
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la modification');
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors du chargement des données');
+    }
+}
+
+function closeAgentFormModal() {
+    const modal = document.querySelector('.agent-form-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// ========================================
 // INITIALISATION AU CHARGEMENT DE LA PAGE
 // ========================================
 
@@ -987,4 +1274,3 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
