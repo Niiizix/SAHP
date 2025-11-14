@@ -557,12 +557,14 @@ body {
     font-weight: 600;
 }
 
-.search-bar {
+.search-bar-container {
+    display: flex;
+    gap: 1rem;
     margin-bottom: 2rem;
 }
 
-.search-bar input {
-    width: 100%;
+.search-input {
+    flex: 1;
     padding: 0.9rem 1.2rem;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
@@ -571,10 +573,29 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.search-bar input:focus {
+.search-input:focus {
     outline: none;
     border-color: #273c5b;
     box-shadow: 0 0 0 3px rgba(39, 60, 91, 0.1);
+}
+
+.add-agent-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 0.9rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.add-agent-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
 }
 
 .personnel-loading {
@@ -1201,6 +1222,140 @@ body {
 
 .empty-state p {
     font-size: 1.1rem;
+}
+
+/* BOUTON MODIFIER AGENT */
+
+.edit-agent-btn {
+    position: absolute;
+    top: 1rem;
+    right: 4rem;
+    background: rgba(52, 152, 219, 0.2);
+    border: 2px solid #3498db;
+    color: #3498db;
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.3rem;
+    z-index: 5;
+}
+
+.edit-agent-btn:hover {
+    background: rgba(52, 152, 219, 0.4);
+    transform: scale(1.05);
+}
+
+/* FORM AGENT MODAL */
+
+.agent-form-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10002;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.agent-form-modal.active {
+    display: flex;
+}
+
+.agent-form-content {
+    background: #2c3e50;
+    border-radius: 12px;
+    padding: 2.5rem;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.agent-form-content h3 {
+    color: #3498db;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.agent-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.agent-form-grid .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.agent-form-content .form-group label {
+    display: block;
+    color: #ecf0f1;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.agent-form-content .form-group input,
+.agent-form-content .form-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #5a6c7d;
+    border-radius: 6px;
+    background: #34495e;
+    color: #ecf0f1;
+    font-size: 0.95rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.agent-form-content .form-group input:focus,
+.agent-form-content .form-group select:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.agent-form-content .form-group input[type="date"] {
+    color-scheme: dark;
+}
+
+.agent-form-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar custom pour le formulaire */
+.agent-form-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.agent-form-content::-webkit-scrollbar-track {
+    background: #34495e;
+    border-radius: 4px;
+}
+
+.agent-form-content::-webkit-scrollbar-thumb {
+    background: #5a6c7d;
+    border-radius: 4px;
+}
+
+.agent-form-content::-webkit-scrollbar-thumb:hover {
+    background: #7f8c8d;
 }
 
 /* Footer */
