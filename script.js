@@ -990,7 +990,7 @@ function openAddAgentModal() {
                     </div>
                     <div class="form-group">
                         <label>Numéro de téléphone *</label>
-                        <input type="text" id="agent_telephone" required placeholder="555-0123">
+                        <input type="text" id="agent_telephone" placeholder="555-0123">
                     </div>
                     <div class="form-group">
                         <label>Matricule *</label>
@@ -1022,19 +1022,19 @@ function openAddAgentModal() {
                         <label>Date d'entrée *</label>
                         <input type="date" id="agent_date_entree" value="${today}" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label>Spécialisation 1</label>
                         <input type="text" id="agent_specialisation_1">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label>Spécialisation 2</label>
                         <input type="text" id="agent_specialisation_2">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label>Qualification 1</label>
                         <input type="text" id="agent_qualification_1">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label>Qualification 2</label>
                         <input type="text" id="agent_qualification_2">
                     </div>
@@ -1113,7 +1113,7 @@ async function openEditAgentModal(agentId) {
                         </div>
                         <div class="form-group">
                             <label>Numéro de téléphone *</label>
-                            <input type="text" id="edit_telephone" value="${agent.numero_telephone || ''}" required>
+                            <input type="text" id="edit_telephone" value="${agent.numero_telephone || ''}">
                         </div>
                         <div class="form-group">
                             <label>Matricule *</label>
@@ -1143,19 +1143,19 @@ async function openEditAgentModal(agentId) {
                             <label>Date d'entrée *</label>
                             <input type="date" id="edit_date_entree" value="${agent.date_entree || ''}" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group full-width">
                             <label>Spécialisation 1</label>
                             <input type="text" id="edit_specialisation_1" value="${agent.specialisation_1 || ''}">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group full-width">
                             <label>Spécialisation 2</label>
                             <input type="text" id="edit_specialisation_2" value="${agent.specialisation_2 || ''}">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group full-width">
                             <label>Qualification 1</label>
                             <input type="text" id="edit_qualification_1" value="${agent.qualification_1 || ''}">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group full-width">
                             <label>Qualification 2</label>
                             <input type="text" id="edit_qualification_2" value="${agent.qualification_2 || ''}">
                         </div>
