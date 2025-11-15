@@ -1229,7 +1229,7 @@ body {
 .edit-agent-btn {
     position: absolute;
     top: 1rem;
-    right: 4rem;
+    right: 1rem;
     background: rgba(52, 152, 219, 0.2);
     border: 2px solid #3498db;
     color: #3498db;
