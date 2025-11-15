@@ -1214,7 +1214,6 @@ async function openEditAgentModal(agentId) {
                 grade: document.getElementById('edit_grade').value,
                 poste_affectation: document.getElementById('edit_poste').value,
                 date_entree: convertToDisplayDate(document.getElementById('edit_date_entree').value),
-                divisions: document.getElementById('edit_divisions').value,
                 specialisation_1: document.getElementById('edit_specialisation_1').value,
                 specialisation_2: document.getElementById('edit_specialisation_2').value,
                 qualification_1: document.getElementById('edit_qualification_1').value,
