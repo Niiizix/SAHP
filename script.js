@@ -954,6 +954,35 @@ function formatDateTime(dateString) {
 // GESTION AGENTS (CRÉER / MODIFIER)
 // ========================================
 
+function convertToInputDate(dateString) {
+    if (!dateString) return '';
+    
+    // Si déjà au format YYYY-MM-DD
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return dateString;
+    }
+    
+    // Si au format DD/MM/YYYY
+    if (dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+        const [day, month, year] = dateString.split('/');
+        return `${year}-${month}-${day}`;
+    }
+    
+    return '';
+}
+
+function convertToDisplayDate(dateString) {
+    if (!dateString) return '';
+    
+    // Si au format YYYY-MM-DD (input date)
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+    }
+    
+    return dateString;
+}
+
 const GRADES_LIST = [
     'Commissioner',
     'Deputy Commissioner',
@@ -1062,7 +1091,7 @@ function openAddAgentModal() {
             code_acces: document.getElementById('agent_code_acces').value,
             grade: document.getElementById('agent_grade').value,
             poste_affectation: document.getElementById('agent_poste').value,
-            date_entree: document.getElementById('agent_date_entree').value,
+            date_entree: convertToDisplayDate(document.getElementById('agent_date_entree').value),
             specialisation_1: document.getElementById('agent_specialisation_1').value,
             specialisation_2: document.getElementById('agent_specialisation_2').value,
             qualification_1: document.getElementById('agent_qualification_1').value,
@@ -1142,7 +1171,7 @@ async function openEditAgentModal(agentId) {
                         </div>
                         <div class="form-group">
                             <label>Date d'entrée *</label>
-                            <input type="date" id="edit_date_entree" value="${agent.date_entree || ''}" required>
+                            <input type="date" id="edit_date_entree" value="${convertToInputDate(agent.date_entree)}" required>
                         </div>
                         <div class="form-group full-width">
                             <label>Spécialisation 1</label>
@@ -1184,7 +1213,7 @@ async function openEditAgentModal(agentId) {
                 code_acces: document.getElementById('edit_code_acces').value,
                 grade: document.getElementById('edit_grade').value,
                 poste_affectation: document.getElementById('edit_poste').value,
-                date_entree: document.getElementById('edit_date_entree').value,
+                date_entree: convertToDisplayDate(document.getElementById('edit_date_entree').value),
                 divisions: document.getElementById('edit_divisions').value,
                 specialisation_1: document.getElementById('edit_specialisation_1').value,
                 specialisation_2: document.getElementById('edit_specialisation_2').value,
