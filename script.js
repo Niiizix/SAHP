@@ -397,6 +397,7 @@ function displayAgentModal(agent) {
             <span class="modal-close" onclick="closeAgentModal()">&times;</span>
             
             <div class="agent-sidebar">
+                <button class="edit-agent-btn" onclick="openEditAgentModal(${agent.id})" title="Modifier l'agent">✏️</button>
                 <div class="agent-photo" onclick="uploadPhoto(${agent.id})">
                     ${photoHTML}
                     <div class="agent-photo-overlay">Cliquer pour changer</div>
