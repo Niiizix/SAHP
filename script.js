@@ -175,8 +175,72 @@ function initSubmenuToggle() {
 }
 
 // ========================================
-// PERSONNEL - AFFICHAGE ET RECHERCHE
+// SYSTÈME DE PERMISSIONS
 // ========================================
+
+function getPermissionLevel(grade) {
+    const niveaux = {
+        // Niveau 1 - Direction
+        'Commissioner': 1,
+        'Deputy Commissioner': 1,
+        'Assistant Commissioner': 1,
+        'Chief': 1,
+        'Assistant Chief': 1,
+        
+        // Niveau 2 - Captain
+        'Captain': 2,
+        
+        // Niveau 3 - Lieutenant
+        'Lieutenant': 3,
+        
+        // Niveau 4 - Grades inférieurs
+        'Sergent': 4,
+        'Senior Officer': 4,
+        'Field Training Officer': 4,
+        'Officer': 4,
+        'Cadet': 4
+    };
+    
+    return niveaux[grade] || 4; // Par défaut niveau 4 (le plus restreint)
+}
+
+function canSeeAllPostes(level) {
+    return level <= 2; // Direction et Captain voient tout
+}
+
+function canCreateAgent(level) {
+    return level <= 2; // Direction et Captain
+}
+
+function canModifyAgent(level) {
+    return level <= 2; // Direction et Captain
+}
+
+function canSeeCodeAcces(level) {
+    return level === 1; // Seulement Direction
+}
+
+function canAddMedaille(level) {
+    return level === 1; // Seulement Direction
+}
+
+function canAddRecommandation(level) {
+    return level === 1; // Seulement Direction
+}
+
+function canAddSanction(level) {
+    return level <= 3; // Direction, Captain, Lieutenant
+}
+
+function canSeeSanctionsTab(level, isOwnProfile) {
+    // Niveau 1-3 voient toujours, niveau 4 seulement leur propre profil
+    return level <= 3 || isOwnProfile;
+}
+
+function canSeeRecommandationsTab(level, isOwnProfile) {
+    // Niveau 1-3 voient toujours, niveau 4 seulement leur propre profil
+    return level <= 3 || isOwnProfile;
+}
 
 // ========================================
 // PERSONNEL - AFFICHAGE ET RECHERCHE
@@ -187,8 +251,24 @@ async function initPersonnel() {
     const loading = document.getElementById('personnelLoading');
     const error = document.getElementById('personnelError');
     const searchInput = document.getElementById('personnelSearch');
+    const addAgentBtn = document.querySelector('.add-agent-btn');
     
-    if (!tableContainer) return; // Pas sur la page personnel
+    if (!tableContainer) return;
+    
+    // Récupérer l'agent connecté
+    const agentData = sessionStorage.getItem('agent');
+    if (!agentData) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    const currentAgent = JSON.parse(agentData);
+    const permissionLevel = getPermissionLevel(currentAgent.grade);
+    
+    // Masquer le bouton "+ Nouvel Agent" si pas de permission
+    if (addAgentBtn && !canCreateAgent(permissionLevel)) {
+        addAgentBtn.style.display = 'none';
+    }
     
     try {
         const response = await fetch('https://sahp.charliemoimeme.workers.dev/personnel');
@@ -197,7 +277,7 @@ async function initPersonnel() {
             throw new Error('Erreur lors du chargement du personnel');
         }
         
-        const agents = await response.json();
+        let agents = await response.json();
         
         loading.style.display = 'none';
         
@@ -207,8 +287,20 @@ async function initPersonnel() {
             return;
         }
         
-        // Stocker les agents pour la recherche
+        // FILTRER selon les permissions
+        if (!canSeeAllPostes(permissionLevel)) {
+            // Récupérer le poste de l'agent connecté
+            const agentFullData = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${currentAgent.id}`).then(r => r.json());
+            const posteAgent = agentFullData.poste_affectation;
+            
+            // Ne garder que les agents du même poste
+            agents = agents.filter(agent => agent.poste_affectation === posteAgent);
+        }
+        
+        // Stocker les agents et le niveau de permission
         window.allAgents = agents;
+        window.currentPermissionLevel = permissionLevel;
+        window.currentAgentId = currentAgent.id;
         
         // Afficher le tableau
         displayPersonnel(agents);
@@ -237,96 +329,6 @@ async function initPersonnel() {
         error.textContent = `Erreur: ${err.message}`;
         error.style.display = 'block';
     }
-}
-
-function displayPersonnel(agents) {
-    const container = document.getElementById('personnelTableContainer');
-    
-    if (agents.length === 0) {
-        container.innerHTML = '<p class="no-results">Aucun résultat trouvé</p>';
-        return;
-    }
-    
-    const gradeOrder = {
-        'La Mesa': ['Commissioner', 'Deputy Commissioner', 'Assistant Commissioner', 'Chief', 'Assistant Chief'],
-        'Grapeseed': ['Captain', 'Lieutenant', 'Sergent', 'Senior Officer', 'Field Training Officer', 'Officer', 'Cadet'],
-        'Chumash': ['Captain', 'Lieutenant', 'Sergent', 'Senior Officer', 'Field Training Officer', 'Officer', 'Cadet']
-    };
-    
-    const groupedByPoste = {
-        'La Mesa': [],
-        'Grapeseed': [],
-        'Chumash': []
-    };
-    
-    agents.forEach(agent => {
-        if (groupedByPoste[agent.poste_affectation]) {
-            groupedByPoste[agent.poste_affectation].push(agent);
-        }
-    });
-    
-    let html = '';
-    
-    Object.keys(groupedByPoste).forEach(poste => {
-        const agentsInPoste = groupedByPoste[poste];
-        
-        if (agentsInPoste.length === 0) return;
-        
-        agentsInPoste.sort((a, b) => {
-            const orderA = gradeOrder[poste].indexOf(a.grade);
-            const orderB = gradeOrder[poste].indexOf(b.grade);
-            return orderA - orderB;
-        });
-        
-        const posteClass = poste.toLowerCase().replace(' ', '');
-        
-        html += `
-            <div class="poste-group">
-                <div class="poste-header ${posteClass}">${poste}</div>
-                <table class="personnel-table">
-                    <thead>
-                        <tr>
-                            <th>Poste</th>
-                            <th>Nom</th>
-                            <th>Prénom</th>
-                            <th>Grade</th>
-                            <th>Matricule</th>
-                            <th>Badge</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-        
-        agentsInPoste.forEach(agent => {
-            html += `
-                <tr class="agent-row" data-agent-id="${agent.id}">
-                    <td><span class="poste-badge ${posteClass}">${agent.poste_affectation}</span></td>
-                    <td>${agent.nom}</td>
-                    <td>${agent.prenom}</td>
-                    <td>${agent.grade}</td>
-                    <td>${agent.matricule}</td>
-                    <td>${agent.badge}</td>
-                </tr>
-            `;
-        });
-        
-        html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-    
-    // Ajouter les event listeners pour les clics
-    document.querySelectorAll('.agent-row').forEach(row => {
-        row.style.cursor = 'pointer';
-        row.addEventListener('click', function() {
-            const agentId = this.dataset.agentId;
-            openAgentModal(agentId);
-        });
-    });
 }
 
 // ========================================
@@ -392,15 +394,27 @@ function displayAgentModal(agent) {
     
     const dateEntree = agent.date_entree ? formatDate(agent.date_entree) : 'Non renseignée';
     
+    // Récupérer les permissions
+    const permissionLevel = window.currentPermissionLevel || 4;
+    const currentAgentId = window.currentAgentId;
+    const isOwnProfile = agent.id === currentAgentId;
+    
+    // Décider si on affiche le bouton modifier
+    const showEditBtn = canModifyAgent(permissionLevel);
+    
+    // Décider si on affiche les tabs sanctions/recommandations
+    const showSanctionsTab = canSeeSanctionsTab(permissionLevel, isOwnProfile);
+    const showRecommandationsTab = canSeeRecommandationsTab(permissionLevel, isOwnProfile);
+    
     modal.innerHTML = `
         <div class="agent-modal-content">
             <span class="modal-close" onclick="closeAgentModal()">&times;</span>
             
             <div class="agent-sidebar">
-                <button class="edit-agent-btn" onclick="openEditAgentModal(${agent.id})" title="Modifier l'agent">✏️</button>
-                <div class="agent-photo" onclick="uploadPhoto(${agent.id})">
+                ${showEditBtn ? `<button class="edit-agent-btn" onclick="openEditAgentModal(${agent.id})" title="Modifier l'agent">✏️</button>` : ''}
+                <div class="agent-photo" ${permissionLevel === 1 ? `onclick="uploadPhoto(${agent.id})"` : ''}>
                     ${photoHTML}
-                    <div class="agent-photo-overlay">Cliquer pour changer</div>
+                    ${permissionLevel === 1 ? '<div class="agent-photo-overlay">Cliquer pour changer</div>' : ''}
                 </div>
                 
                 <div class="agent-grade-badge">${agent.grade}</div>
@@ -450,24 +464,28 @@ function displayAgentModal(agent) {
             <div class="agent-main-content">
                 <div class="agent-tabs">
                     <button class="agent-tab active" data-tab="medailles">Médailles</button>
-                    <button class="agent-tab" data-tab="recommandations">Recommandations</button>
-                    <button class="agent-tab" data-tab="sanctions">Sanctions</button>
+                    ${showRecommandationsTab ? '<button class="agent-tab" data-tab="recommandations">Recommandations</button>' : ''}
+                    ${showSanctionsTab ? '<button class="agent-tab" data-tab="sanctions">Sanctions</button>' : ''}
                 </div>
                 
                 <div id="medailles-tab" class="tab-content active">
-                    <button class="add-item-btn" onclick="openAddMedailleModal(${agent.id})">+ Ajouter une Médaille</button>
+                    ${canAddMedaille(permissionLevel) ? `<button class="add-item-btn" onclick="openAddMedailleModal(${agent.id})">+ Ajouter une Médaille</button>` : ''}
                     <div id="medailles-list" class="items-list"></div>
                 </div>
                 
+                ${showRecommandationsTab ? `
                 <div id="recommandations-tab" class="tab-content">
-                    <button class="add-item-btn" onclick="openAddRecommandationModal(${agent.id})">+ Ajouter une Recommandation</button>
+                    ${canAddRecommandation(permissionLevel) ? `<button class="add-item-btn" onclick="openAddRecommandationModal(${agent.id})">+ Ajouter une Recommandation</button>` : ''}
                     <div id="recommandations-list" class="items-list"></div>
                 </div>
+                ` : ''}
                 
+                ${showSanctionsTab ? `
                 <div id="sanctions-tab" class="tab-content">
-                    <button class="add-item-btn" onclick="openAddSanctionModal(${agent.id})">+ Ajouter une Sanction</button>
+                    ${canAddSanction(permissionLevel) ? `<button class="add-item-btn" onclick="openAddSanctionModal(${agent.id})">+ Ajouter une Sanction</button>` : ''}
                     <div id="sanctions-list" class="items-list"></div>
                 </div>
+                ` : ''}
             </div>
         </div>
     `;
@@ -485,8 +503,8 @@ function displayAgentModal(agent) {
     
     // Charger les données
     loadAgentMedailles(agent.id);
-    loadAgentRecommandations(agent.id);
-    loadAgentSanctions(agent.id);
+    if (showRecommandationsTab) loadAgentRecommandations(agent.id);
+    if (showSanctionsTab) loadAgentSanctions(agent.id);
 }
 
 function closeAgentModal() {
@@ -1126,6 +1144,9 @@ async function openEditAgentModal(agentId) {
         const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentId}`);
         const agent = await response.json();
         
+        const permissionLevel = window.currentPermissionLevel || 4;
+        const showCodeAcces = canSeeCodeAcces(permissionLevel);
+        
         const modal = document.createElement('div');
         modal.className = 'agent-form-modal active';
         modal.innerHTML = `
@@ -1153,10 +1174,12 @@ async function openEditAgentModal(agentId) {
                             <label>Badge *</label>
                             <input type="text" id="edit_badge" value="${agent.badge}" required>
                         </div>
+                        ${showCodeAcces ? `
                         <div class="form-group">
                             <label>Code d'accès *</label>
                             <input type="password" id="edit_code_acces" value="${agent.code_acces}" required>
                         </div>
+                        ` : ''}
                         <div class="form-group">
                             <label>Grade *</label>
                             <select id="edit_grade" required>
@@ -1210,7 +1233,7 @@ async function openEditAgentModal(agentId) {
                 numero_telephone: document.getElementById('edit_telephone').value,
                 matricule: document.getElementById('edit_matricule').value,
                 badge: document.getElementById('edit_badge').value,
-                code_acces: document.getElementById('edit_code_acces').value,
+                code_acces: showCodeAcces ? document.getElementById('edit_code_acces').value : agent.code_acces,
                 grade: document.getElementById('edit_grade').value,
                 poste_affectation: document.getElementById('edit_poste').value,
                 date_entree: convertToDisplayDate(document.getElementById('edit_date_entree').value),
@@ -1233,7 +1256,7 @@ async function openEditAgentModal(agentId) {
                     closeAgentFormModal();
                     closeAgentModal();
                     alert('Agent modifié avec succès !');
-                    initPersonnel(); // Recharger la liste
+                    initPersonnel();
                 } else {
                     alert('Erreur: ' + data.error);
                 }
@@ -1246,13 +1269,6 @@ async function openEditAgentModal(agentId) {
     } catch (error) {
         console.error('Erreur:', error);
         alert('Erreur lors du chargement des données');
-    }
-}
-
-function closeAgentFormModal() {
-    const modal = document.querySelector('.agent-form-modal');
-    if (modal) {
-        modal.remove();
     }
 }
 
