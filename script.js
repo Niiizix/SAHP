@@ -331,6 +331,97 @@ async function initPersonnel() {
     }
 }
 
+function displayPersonnel(agents) {
+    const container = document.getElementById('personnelTableContainer');
+    
+    if (agents.length === 0) {
+        container.innerHTML = '<p class="no-results">Aucun résultat trouvé</p>';
+        return;
+    }
+    
+    const gradeOrder = {
+        'La Mesa': ['Commissioner', 'Deputy Commissioner', 'Assistant Commissioner', 'Chief', 'Assistant Chief'],
+        'Grapeseed': ['Captain', 'Lieutenant', 'Sergent', 'Senior Officer', 'Field Training Officer', 'Officer', 'Cadet'],
+        'Chumash': ['Captain', 'Lieutenant', 'Sergent', 'Senior Officer', 'Field Training Officer', 'Officer', 'Cadet']
+    };
+    
+    const groupedByPoste = {
+        'La Mesa': [],
+        'Grapeseed': [],
+        'Chumash': []
+    };
+    
+    agents.forEach(agent => {
+        if (groupedByPoste[agent.poste_affectation]) {
+            groupedByPoste[agent.poste_affectation].push(agent);
+        }
+    });
+    
+    let html = '';
+    
+    Object.keys(groupedByPoste).forEach(poste => {
+        const agentsInPoste = groupedByPoste[poste];
+        
+        if (agentsInPoste.length === 0) return;
+        
+        agentsInPoste.sort((a, b) => {
+            const orderA = gradeOrder[poste].indexOf(a.grade);
+            const orderB = gradeOrder[poste].indexOf(b.grade);
+            return orderA - orderB;
+        });
+        
+        const posteClass = poste.toLowerCase().replace(' ', '');
+        
+        html += `
+            <div class="poste-group">
+                <div class="poste-header ${posteClass}">${poste}</div>
+                <table class="personnel-table">
+                    <thead>
+                        <tr>
+                            <th>Poste</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Grade</th>
+                            <th>Matricule</th>
+                            <th>Badge</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        agentsInPoste.forEach(agent => {
+            html += `
+                <tr class="agent-row" data-agent-id="${agent.id}">
+                    <td><span class="poste-badge ${posteClass}">${agent.poste_affectation}</span></td>
+                    <td>${agent.nom}</td>
+                    <td>${agent.prenom}</td>
+                    <td>${agent.grade}</td>
+                    <td>${agent.matricule}</td>
+                    <td>${agent.badge}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Ajouter les event listeners pour les clics
+    document.querySelectorAll('.agent-row').forEach(row => {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function() {
+            const agentId = this.dataset.agentId;
+            openAgentModal(agentId);
+        });
+    });
+}
+
+
 // ========================================
 // MODAL AGENT DÉTAIL
 // ========================================
@@ -609,6 +700,8 @@ async function loadAgentMedailles(agentId) {
         const medailles = await response.json();
         
         const list = document.getElementById('medailles-list');
+        const permissionLevel = window.currentPermissionLevel || 4;
+        const canDelete = permissionLevel === 1; // Seulement Direction
         
         if (medailles.length === 0) {
             list.innerHTML = '<div class="empty-state"><p>Aucune médaille attribuée</p></div>';
@@ -625,7 +718,7 @@ async function loadAgentMedailles(agentId) {
                         <span>Le: ${formatDateTime(m.date_attribution)}</span>
                     </div>
                 </div>
-                <button class="delete-btn" onclick="deleteAgentMedaille(${m.id}, ${agentId})">🗑️</button>
+                ${canDelete ? `<button class="delete-btn" onclick="deleteAgentMedaille(${m.id}, ${agentId})">🗑️</button>` : ''}
             </div>
         `).join('');
         
@@ -727,6 +820,8 @@ async function loadAgentRecommandations(agentId) {
         const recommandations = await response.json();
         
         const list = document.getElementById('recommandations-list');
+        const permissionLevel = window.currentPermissionLevel || 4;
+        const canDelete = permissionLevel === 1; // Seulement Direction
         
         if (recommandations.length === 0) {
             list.innerHTML = '<div class="empty-state"><p>Aucune recommandation</p></div>';
@@ -742,7 +837,7 @@ async function loadAgentRecommandations(agentId) {
                         <span>Le: ${formatDateTime(r.date_ajout)}</span>
                     </div>
                 </div>
-                <button class="delete-btn" onclick="deleteAgentRecommandation(${r.id}, ${agentId})">🗑️</button>
+                ${canDelete ? `<button class="delete-btn" onclick="deleteAgentRecommandation(${r.id}, ${agentId})">🗑️</button>` : ''}
             </div>
         `).join('');
         
@@ -830,6 +925,8 @@ async function loadAgentSanctions(agentId) {
         const sanctions = await response.json();
         
         const list = document.getElementById('sanctions-list');
+        const permissionLevel = window.currentPermissionLevel || 4;
+        const canDelete = permissionLevel === 1; // Seulement Direction
         
         if (sanctions.length === 0) {
             list.innerHTML = '<div class="empty-state"><p>Aucune sanction</p></div>';
@@ -846,7 +943,7 @@ async function loadAgentSanctions(agentId) {
                         <span>Le: ${formatDateTime(s.date_ajout)}</span>
                     </div>
                 </div>
-                <button class="delete-btn" onclick="deleteAgentSanction(${s.id}, ${agentId})">🗑️</button>
+                ${canDelete ? `<button class="delete-btn" onclick="deleteAgentSanction(${s.id}, ${agentId})">🗑️</button>` : ''}
             </div>
         `).join('');
         
