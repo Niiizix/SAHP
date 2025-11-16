@@ -712,7 +712,7 @@ async function loadAgentMedailles(agentId) {
             <div class="item-card">
                 <div class="item-content">
                     <div class="item-title">🏅 ${m.nom}</div>
-                    <div class="item-description">${m.description || ''}</div>
+                    <div class="item-description">${m.description_personnalisee || m.description || ''}</div>
                     <div class="item-meta">
                         <span>Attribuée par: ${m.attribue_par}</span>
                         <span>Le: ${formatDateTime(m.date_attribution)}</span>
@@ -741,11 +741,19 @@ async function openAddMedailleModal(agentId) {
                 <h3>Ajouter une Médaille</h3>
                 <form id="addMedailleForm">
                     <div class="form-group">
-                        <label>Sélectionner une médaille</label>
+                        <label>Sélectionner une médaille *</label>
                         <select id="medailleSelect" required>
                             <option value="">-- Choisir --</option>
-                            ${medailles.map(m => `<option value="${m.id}">${m.nom}</option>`).join('')}
+                            ${medailles.map(m => `<option value="${m.id}" data-description="${m.description || ''}">${m.nom}</option>`).join('')}
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description par défaut</label>
+                        <textarea id="medailleDefaultDescription" readonly style="background: #f5f5f5; cursor: not-allowed; min-height: 60px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Description personnalisée *</label>
+                        <textarea id="medailleDescription" required placeholder="Décrivez pourquoi cette médaille est attribuée..." style="min-height: 100px;"></textarea>
                     </div>
                     <div class="form-buttons">
                         <button type="button" class="form-btn cancel" onclick="closeFormModal()">Annuler</button>
@@ -757,10 +765,18 @@ async function openAddMedailleModal(agentId) {
         
         document.body.appendChild(modal);
         
+        // Afficher la description par défaut quand on sélectionne une médaille
+        document.getElementById('medailleSelect').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const defaultDesc = selectedOption.getAttribute('data-description');
+            document.getElementById('medailleDefaultDescription').value = defaultDesc || 'Aucune description par défaut';
+        });
+        
         document.getElementById('addMedailleForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const medailleId = document.getElementById('medailleSelect').value;
+            const description = document.getElementById('medailleDescription').value;
             const agentData = JSON.parse(sessionStorage.getItem('agent'));
             
             const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/add-medaille', {
@@ -769,6 +785,7 @@ async function openAddMedailleModal(agentId) {
                 body: JSON.stringify({
                     agent_id: agentId,
                     medaille_id: medailleId,
+                    description_personnalisee: description,
                     attribue_par: `${agentData.prenom} ${agentData.nom}`
                 })
             });
