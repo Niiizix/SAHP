@@ -748,10 +748,6 @@ async function openAddMedailleModal(agentId) {
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Description par défaut</label>
-                        <textarea id="medailleDescription" readonly style="background: #f5f5f5; cursor: not-allowed; min-height: 60px;"></textarea>
-                    </div>
-                    <div class="form-group">
                         <label>Description personnalisée *</label>
                         <textarea id="medailleDescription" required placeholder="Décrivez pourquoi cette médaille est attribuée..." style="min-height: 100px;"></textarea>
                     </div>
@@ -1424,4 +1420,3 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
