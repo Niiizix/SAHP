@@ -1390,6 +1390,224 @@ async function openEditAgentModal(agentId) {
 }
 
 // ========================================
+// RAPPORTS - CHARGEMENT ET AFFICHAGE
+// ========================================
+
+async function initRapports() {
+    const tableContainer = document.getElementById('rapportsTableContainer');
+    const loading = document.getElementById('rapportsLoading');
+    const error = document.getElementById('rapportsError');
+    const searchInput = document.getElementById('rapportsSearch');
+    
+    if (!tableContainer) return;
+    
+    try {
+        // Charger les rapports d'arrestation
+        const responseArrestations = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/arrestations');
+        const arrestations = await responseArrestations.json();
+        
+        // Charger les rapports OIS
+        const responseOIS = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/ois');
+        const ois = await responseOIS.json();
+        
+        loading.style.display = 'none';
+        
+        // Combiner et marquer le type
+        const allRapports = [
+            ...arrestations.map(r => ({ ...r, type: 'arrestation' })),
+            ...ois.map(r => ({ ...r, type: 'ois' }))
+        ];
+        
+        // Trier par date (plus récent en premier)
+        allRapports.sort((a, b) => new Date(b.date_rapport) - new Date(a.date_rapport));
+        
+        if (allRapports.length === 0) {
+            error.textContent = 'Aucun rapport trouvé.';
+            error.style.display = 'block';
+            return;
+        }
+        
+        window.allRapports = allRapports;
+        
+        displayRapports(allRapports);
+        
+        // Gérer la recherche
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filtered = allRapports.filter(rapport => {
+                    return (
+                        rapport.agent_nom.toLowerCase().includes(searchTerm) ||
+                        rapport.agent_prenom.toLowerCase().includes(searchTerm) ||
+                        rapport.agent_badge.toLowerCase().includes(searchTerm) ||
+                        rapport.statut.toLowerCase().includes(searchTerm) ||
+                        rapport.type.toLowerCase().includes(searchTerm)
+                    );
+                });
+                displayRapports(filtered);
+            });
+        }
+        
+    } catch (err) {
+        console.error('Erreur:', err);
+        loading.style.display = 'none';
+        error.textContent = `Erreur: ${err.message}`;
+        error.style.display = 'block';
+    }
+}
+
+function displayRapports(rapports) {
+    const container = document.getElementById('rapportsTableContainer');
+    
+    if (rapports.length === 0) {
+        container.innerHTML = '<p class="no-results">Aucun résultat trouvé</p>';
+        return;
+    }
+    
+    // Grouper par type
+    const groupedByType = {
+        'Arrestations': rapports.filter(r => r.type === 'arrestation'),
+        'OIS': rapports.filter(r => r.type === 'ois')
+    };
+    
+    let html = '';
+    
+    Object.keys(groupedByType).forEach(typeName => {
+        const rapportsInType = groupedByType[typeName];
+        
+        if (rapportsInType.length === 0) return;
+        
+        const typeClass = typeName.toLowerCase();
+        
+        html += `
+            <div class="poste-group">
+                <div class="poste-header ${typeClass}">${typeName}</div>
+                <table class="personnel-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Badge</th>
+                            <th>Date/Heure</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        rapportsInType.forEach(rapport => {
+            const statutClass = rapport.statut.toLowerCase().replace(' ', '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const typeLabel = rapport.type === 'arrestation' ? 'Arrestation' : 'OIS';
+            
+            html += `
+                <tr class="agent-row" data-rapport-id="${rapport.id}" data-rapport-type="${rapport.type}">
+                    <td><span class="type-badge ${rapport.type}">${typeLabel}</span></td>
+                    <td>${rapport.agent_nom}</td>
+                    <td>${rapport.agent_prenom}</td>
+                    <td>${rapport.agent_badge}</td>
+                    <td>${formatDateTime(rapport.date_rapport)}</td>
+                    <td><span class="statut-badge ${statutClass}">${rapport.statut}</span></td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Ajouter les event listeners
+    document.querySelectorAll('.agent-row').forEach(row => {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function() {
+            const rapportId = this.dataset.rapportId;
+            const rapportType = this.dataset.rapportType;
+            openRapportModal(rapportId, rapportType);
+        });
+    });
+}
+
+// ========================================
+// MODAL CHOIX TYPE DE RAPPORT
+// ========================================
+
+function openNewRapportTypeModal() {
+    const modal = document.createElement('div');
+    modal.className = 'type-rapport-modal active';
+    modal.innerHTML = `
+        <div class="type-rapport-content">
+            <h3>Nouveau Rapport</h3>
+            <div class="type-rapport-grid">
+                <div class="type-rapport-card" onclick="openNewRapportArrestationModal()">
+                    <div class="type-rapport-card-icon">🚔</div>
+                    <div class="type-rapport-card-title">Rapport d'Arrestation</div>
+                    <div class="type-rapport-card-desc">
+                        Pour documenter une arrestation, les charges retenues et les circonstances.
+                    </div>
+                </div>
+                
+                <div class="type-rapport-card" onclick="openNewRapportOISModal()">
+                    <div class="type-rapport-card-icon">🔫</div>
+                    <div class="type-rapport-card-title">Rapport OIS</div>
+                    <div class="type-rapport-card-desc">
+                        Officer Involved Shooting - Usage de l'arme à feu par un agent.
+                    </div>
+                </div>
+            </div>
+            <div class="type-rapport-cancel">
+                <button onclick="closeTypeRapportModal()">Annuler</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Fermer en cliquant en dehors
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeTypeRapportModal();
+        }
+    });
+}
+
+function closeTypeRapportModal() {
+    const modal = document.querySelector('.type-rapport-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// ========================================
+// MODALS CRÉATION RAPPORTS (PLACEHOLDERS)
+// ========================================
+
+function openNewRapportArrestationModal() {
+    closeTypeRapportModal();
+    alert('Formulaire de rapport d\'arrestation à implémenter');
+    // TODO: Créer le formulaire complet
+}
+
+function openNewRapportOISModal() {
+    closeTypeRapportModal();
+    alert('Formulaire de rapport OIS à implémenter');
+    // TODO: Créer le formulaire complet
+}
+
+// ========================================
+// MODAL DÉTAIL RAPPORT (PLACEHOLDER)
+// ========================================
+
+function openRapportModal(rapportId, rapportType) {
+    alert(`Affichage du rapport ${rapportType} #${rapportId} - À implémenter`);
+    // TODO: Créer la modal de détail complète
+}
+
+// ========================================
 // INITIALISATION AU CHARGEMENT DE LA PAGE
 // ========================================
 
@@ -1408,6 +1626,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
     // Initialiser le tableau du personnel
     initPersonnel();
+
+    // Initialiser les rapports
+    initRapports();
     
     // Gérer le lightbox si présent
     const lightbox = document.getElementById('lightbox');
