@@ -209,7 +209,7 @@ function canSeeAllPostes(level) {
 }
 
 function canCreateAgent(level) {
-    return level <= 2; // Direction et Captain
+    return level <= 3; // Direction, Captain et Lieutenant
 }
 
 function canModifyAgent(level) {
@@ -242,6 +242,14 @@ function canSeeRecommandationsTab(level, isOwnProfile) {
     return level <= 3 || isOwnProfile;
 }
 
+function canArchiveAgent(level) {
+    return level <= 2; // Direction et Captain
+}
+
+function canSeeArchivesSection(level) {
+    return level === 1; // Seulement Direction
+}
+
 // ========================================
 // PERSONNEL - AFFICHAGE ET RECHERCHE
 // ========================================
@@ -255,7 +263,6 @@ async function initPersonnel() {
     
     if (!tableContainer) return;
     
-    // Récupérer l'agent connecté
     const agentData = sessionStorage.getItem('agent');
     if (!agentData) {
         window.location.href = 'login.html';
@@ -265,7 +272,6 @@ async function initPersonnel() {
     const currentAgent = JSON.parse(agentData);
     const permissionLevel = getPermissionLevel(currentAgent.grade);
     
-    // Masquer le bouton "+ Nouvel Agent" si pas de permission
     if (addAgentBtn && !canCreateAgent(permissionLevel)) {
         addAgentBtn.style.display = 'none';
     }
@@ -289,23 +295,25 @@ async function initPersonnel() {
         
         // FILTRER selon les permissions
         if (!canSeeAllPostes(permissionLevel)) {
-            // Récupérer le poste de l'agent connecté
             const agentFullData = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${currentAgent.id}`).then(r => r.json());
             const posteAgent = agentFullData.poste_affectation;
             
-            // Ne garder que les agents du même poste
             agents = agents.filter(agent => agent.poste_affectation === posteAgent);
         }
         
-        // Stocker les agents et le niveau de permission
         window.allAgents = agents;
         window.currentPermissionLevel = permissionLevel;
         window.currentAgentId = currentAgent.id;
+        window.currentAgentPoste = null; // Sera chargé si besoin
         
-        // Afficher le tableau
+        // Charger le poste de l'agent si Lieutenant (pour la création)
+        if (permissionLevel === 3) {
+            const agentFullData = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${currentAgent.id}`).then(r => r.json());
+            window.currentAgentPoste = agentFullData.poste_affectation;
+        }
+        
         displayPersonnel(agents);
         
-        // Gérer la recherche
         if (searchInput) {
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
@@ -339,6 +347,12 @@ function displayPersonnel(agents) {
         return;
     }
     
+    const permissionLevel = window.currentPermissionLevel || 4;
+    
+    // Séparer agents actifs et archivés
+    const agentsActifs = agents.filter(a => !a.est_archive);
+    const agentsArchives = agents.filter(a => a.est_archive);
+    
     const gradeOrder = {
         'La Mesa': ['Commissioner', 'Deputy Commissioner', 'Assistant Commissioner', 'Chief', 'Assistant Chief'],
         'Grapeseed': ['Captain', 'Lieutenant', 'Sergent', 'Senior Officer', 'Field Training Officer', 'Officer', 'Cadet'],
@@ -351,7 +365,7 @@ function displayPersonnel(agents) {
         'Chumash': []
     };
     
-    agents.forEach(agent => {
+    agentsActifs.forEach(agent => {
         if (groupedByPoste[agent.poste_affectation]) {
             groupedByPoste[agent.poste_affectation].push(agent);
         }
@@ -359,6 +373,7 @@ function displayPersonnel(agents) {
     
     let html = '';
     
+    // Afficher les postes actifs
     Object.keys(groupedByPoste).forEach(poste => {
         const agentsInPoste = groupedByPoste[poste];
         
@@ -409,9 +424,55 @@ function displayPersonnel(agents) {
         `;
     });
     
+    // Afficher la section Archives (seulement pour Direction)
+    if (canSeeArchivesSection(permissionLevel) && agentsArchives.length > 0) {
+        agentsArchives.sort((a, b) => a.nom.localeCompare(b.nom));
+        
+        html += `
+            <div class="poste-group archives-group">
+                <div class="poste-header archives" onclick="toggleArchives()">
+                    <span class="archive-toggle-icon">▶</span> Archives (${agentsArchives.length})
+                </div>
+                <div class="archives-content" style="display: none;">
+                    <table class="personnel-table">
+                        <thead>
+                            <tr>
+                                <th>Ancien Poste</th>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Grade</th>
+                                <th>Matricule</th>
+                                <th>Badge</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        agentsArchives.forEach(agent => {
+            const posteClass = agent.poste_affectation.toLowerCase().replace(' ', '');
+            html += `
+                <tr class="agent-row archived-row" data-agent-id="${agent.id}">
+                    <td><span class="poste-badge ${posteClass}">${agent.poste_affectation}</span></td>
+                    <td>${agent.nom}</td>
+                    <td>${agent.prenom}</td>
+                    <td>${agent.grade}</td>
+                    <td>${agent.matricule}</td>
+                    <td>${agent.badge}</td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+    
     container.innerHTML = html;
     
-    // Ajouter les event listeners pour les clics
+    // Event listeners
     document.querySelectorAll('.agent-row').forEach(row => {
         row.style.cursor = 'pointer';
         row.addEventListener('click', function() {
@@ -419,6 +480,19 @@ function displayPersonnel(agents) {
             openAgentModal(agentId);
         });
     });
+}
+
+function toggleArchives() {
+    const content = document.querySelector('.archives-content');
+    const icon = document.querySelector('.archive-toggle-icon');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        icon.textContent = '▶';
+    }
 }
 
 
@@ -485,17 +559,25 @@ function displayAgentModal(agent) {
     
     const dateEntree = agent.date_entree ? formatDate(agent.date_entree) : 'Non renseignée';
     
-    // Récupérer les permissions
     const permissionLevel = window.currentPermissionLevel || 4;
     const currentAgentId = window.currentAgentId;
     const isOwnProfile = agent.id === currentAgentId;
     
-    // Décider si on affiche le bouton modifier
     const showEditBtn = canModifyAgent(permissionLevel);
+    const showArchiveBtn = canArchiveAgent(permissionLevel);
     
-    // Décider si on affiche les tabs sanctions/recommandations
     const showSanctionsTab = canSeeSanctionsTab(permissionLevel, isOwnProfile);
     const showRecommandationsTab = canSeeRecommandationsTab(permissionLevel, isOwnProfile);
+    
+    // Bouton archiver ou déployer
+    let archiveButtonHTML = '';
+    if (showArchiveBtn) {
+        if (agent.est_archive) {
+            archiveButtonHTML = `<button class="deploy-agent-btn" onclick="deployAgent(${agent.id})" title="Déployer l'agent">🔄</button>`;
+        } else {
+            archiveButtonHTML = `<button class="archive-agent-btn" onclick="archiveAgent(${agent.id})" title="Archiver l'agent">📦</button>`;
+        }
+    }
     
     modal.innerHTML = `
         <div class="agent-modal-content">
@@ -503,6 +585,7 @@ function displayAgentModal(agent) {
             
             <div class="agent-sidebar">
                 ${showEditBtn ? `<button class="edit-agent-btn" onclick="openEditAgentModal(${agent.id})" title="Modifier l'agent">✏️</button>` : ''}
+                ${archiveButtonHTML}
                 <div class="agent-photo" ${permissionLevel === 1 ? `onclick="uploadPhoto(${agent.id})"` : ''}>
                     ${photoHTML}
                     ${permissionLevel === 1 ? '<div class="agent-photo-overlay">Cliquer pour changer</div>' : ''}
@@ -510,6 +593,7 @@ function displayAgentModal(agent) {
                 
                 <div class="agent-grade-badge">${agent.grade}</div>
                 <div class="agent-fullname">${agent.prenom} ${agent.nom}</div>
+                ${agent.est_archive ? '<div class="agent-archived-badge">ARCHIVÉ</div>' : ''}
                 
                 <div class="agent-info-list">
                     <div class="agent-info-item">
@@ -589,10 +673,8 @@ function displayAgentModal(agent) {
         }
     });
     
-    // Gérer les tabs
     initTabs();
     
-    // Charger les données
     loadAgentMedailles(agent.id);
     if (showRecommandationsTab) loadAgentRecommandations(agent.id);
     if (showSanctionsTab) loadAgentSanctions(agent.id);
@@ -666,6 +748,64 @@ function uploadPhoto(agentId) {
     
     // Déclencher le sélecteur de fichier
     input.click();
+}
+
+// ========================================
+// ARCHIVER / DÉPLOYER UN AGENT
+// ========================================
+
+async function archiveAgent(agentId) {
+    if (!confirm('Êtes-vous sûr de vouloir archiver cet agent ? Il perdra l\'accès à la partie interne du site.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/archive', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agent_id: agentId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            closeAgentModal();
+            alert('Agent archivé avec succès.');
+            initPersonnel();
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'archivage');
+    }
+}
+
+async function deployAgent(agentId) {
+    if (!confirm('Êtes-vous sûr de vouloir déployer cet agent ? Il retrouvera l\'accès à la partie interne.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/deploy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agent_id: agentId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            closeAgentModal();
+            alert('Agent déployé avec succès.');
+            initPersonnel();
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors du déploiement');
+    }
 }
 
 // ========================================
@@ -1129,6 +1269,10 @@ const GRADES_LIST = [
 const POSTES_LIST = ['La Mesa', 'Grapeseed', 'Chumash'];
 
 function openAddAgentModal() {
+    const permissionLevel = window.currentPermissionLevel || 4;
+    const currentPoste = window.currentAgentPoste;
+    const isLieutenant = permissionLevel === 3;
+    
     const today = new Date().toISOString().split('T')[0];
     
     const modal = document.createElement('div');
@@ -1171,9 +1315,12 @@ function openAddAgentModal() {
                     </div>
                     <div class="form-group">
                         <label>Poste d'affectation *</label>
-                        <select id="agent_poste" required>
-                            <option value="">-- Sélectionner --</option>
-                            ${POSTES_LIST.map(p => `<option value="${p}">${p}</option>`).join('')}
+                        <select id="agent_poste" required ${isLieutenant ? 'disabled' : ''}>
+                            ${isLieutenant ? 
+                                `<option value="${currentPoste}" selected>${currentPoste}</option>` :
+                                `<option value="">-- Sélectionner --</option>
+                                ${POSTES_LIST.map(p => `<option value="${p}">${p}</option>`).join('')}`
+                            }
                         </select>
                     </div>
                     <div class="form-group">
@@ -1218,7 +1365,7 @@ function openAddAgentModal() {
             badge: document.getElementById('agent_badge').value,
             code_acces: document.getElementById('agent_code_acces').value,
             grade: document.getElementById('agent_grade').value,
-            poste_affectation: document.getElementById('agent_poste').value,
+            poste_affectation: isLieutenant ? currentPoste : document.getElementById('agent_poste').value,
             date_entree: convertToDisplayDate(document.getElementById('agent_date_entree').value),
             specialisation_1: document.getElementById('agent_specialisation_1').value,
             specialisation_2: document.getElementById('agent_specialisation_2').value,
@@ -1238,7 +1385,7 @@ function openAddAgentModal() {
             if (data.success) {
                 closeAgentFormModal();
                 alert('Agent créé avec succès !');
-                initPersonnel(); // Recharger la liste
+                initPersonnel();
             } else {
                 alert('Erreur: ' + data.error);
             }
