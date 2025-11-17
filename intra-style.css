@@ -1358,6 +1358,156 @@ body {
     background: #7f8c8d;
 }
 
+/* PAGE RAPPORTS */
+/* RAPPORTS - Hero */
+
+.rapports-bg {
+    background-image: url(imgs/HERO_RAPPORTS.png);
+}
+
+/* RAPPORTS - Badges de type */
+
+.type-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: clamp(0.8rem, 0.85vw + 0.2rem, 0.85rem);
+    color: white;
+}
+
+.type-badge.arrestation {
+    background: #ef4444;
+}
+
+.type-badge.ois {
+    background: #f97316;
+}
+
+/* RAPPORTS - Badges de statut */
+
+.statut-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: clamp(0.75rem, 0.8vw + 0.2rem, 0.8rem);
+    color: white;
+}
+
+.statut-badge.nouveau {
+    background: #3b82f6;
+}
+
+.statut-badge.en-cours {
+    background: #f59e0b;
+}
+
+.statut-badge.valide {
+    background: #10b981;
+}
+
+.statut-badge.invalide {
+    background: #6b7280;
+}
+
+/* MODAL CHOIX TYPE RAPPORT */
+
+.type-rapport-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10001;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.type-rapport-modal.active {
+    display: flex;
+}
+
+.type-rapport-content {
+    background: #2c3e50;
+    border-radius: 12px;
+    padding: 2.5rem;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.type-rapport-content h3 {
+    color: #3498db;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.type-rapport-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.type-rapport-card {
+    background: rgba(52, 73, 94, 0.3);
+    border: 2px solid #5a6c7d;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.type-rapport-card:hover {
+    background: rgba(52, 73, 94, 0.5);
+    border-color: #3498db;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.3);
+}
+
+.type-rapport-card-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+.type-rapport-card-title {
+    color: #ecf0f1;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.type-rapport-card-desc {
+    color: #95a5a6;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.type-rapport-cancel {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.type-rapport-cancel button {
+    background: #7f8c8d;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.type-rapport-cancel button:hover {
+    background: #95a5a6;
+}
+
 /* Footer */
 
 .footer {
