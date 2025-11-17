@@ -1249,6 +1249,13 @@ function openAddAgentModal() {
     });
 }
 
+function closeAgentFormModal() {
+    const modal = document.querySelector('.agent-form-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
 async function openEditAgentModal(agentId) {
     try {
         const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentId}`);
