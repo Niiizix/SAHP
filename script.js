@@ -267,7 +267,7 @@ function getInsigneUrl(grade) {
         'Assistant Chief': 'imgs/insigne_assistant_chief.png',
         'Captain': 'imgs/insigne_captain.png',
         'Lieutenant': 'imgs/insigne_lieutenant.png',
-        'Sergent': 'imgs/sergent.png',
+        'Sergent': 'imgs/insigne_sergent.png',
         'Field Training Officer': 'imgs/insigne_fto.png'
     };
     
@@ -1874,3 +1874,4 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
