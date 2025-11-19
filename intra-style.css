@@ -837,6 +837,11 @@ body {
     text-align: center;
     width: 100%;
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-height: 50px;
 }
 
 .agent-fullname {
@@ -1487,15 +1492,20 @@ body {
 /* INSIGNE DE GRADE */
 
 .grade-insigne {
-    width: 35px;
-    height: 35px;
+    height: 32px;
+    width: auto;
+    max-width: 80px;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    flex-shrink: 0;
+    display: block;
 }
 
 .grade-text {
-    flex: 1;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
 }
 
 /* Ajustement si pas d'insigne */
