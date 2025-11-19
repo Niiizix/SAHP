@@ -250,6 +250,30 @@ function canSeeArchivesSection(level) {
     return level === 1; // Seulement Direction
 }
 
+function canDeleteAgent(level) {
+    return level === 1; // Seulement Direction
+}
+
+// ========================================
+// MAPPING DES INSIGNES
+// ========================================
+
+function getInsigneUrl(grade) {
+    const insignesMap = {
+        'Commissioner': 'imgs/insigne_commissioner.png',
+        'Deputy Commissioner': 'imgs/insigne_deputy_commissioner.png',
+        'Assistant Commissioner': 'imgs/insigne_assistant_commissioner.png',
+        'Chief': 'imgs/insigne_chief.png',
+        'Assistant Chief': 'imgs/insigne_assistant_chief.png',
+        'Captain': 'imgs/insigne_captain.png',
+        'Lieutenant': 'imgs/insigne_lieutenant.png',
+        'Sergent': 'imgs/sergent.png',
+        'Field Training Officer': 'imgs/insigne_fto.png'
+    };
+    
+    return insignesMap[grade] || null;
+}
+
 // ========================================
 // PERSONNEL - AFFICHAGE ET RECHERCHE
 // ========================================
@@ -565,33 +589,52 @@ function displayAgentModal(agent) {
     
     const showEditBtn = canModifyAgent(permissionLevel);
     const showArchiveBtn = canArchiveAgent(permissionLevel);
+    const showDeleteBtn = canDeleteAgent(permissionLevel) && agent.est_archive;
     
     const showSanctionsTab = canSeeSanctionsTab(permissionLevel, isOwnProfile);
     const showRecommandationsTab = canSeeRecommandationsTab(permissionLevel, isOwnProfile);
     
-    // Bouton archiver ou déployer
-    let archiveButtonHTML = '';
+    // Boutons d'action
+    let buttonsHTML = '';
+    
+    // Bouton modifier
+    if (showEditBtn) {
+        buttonsHTML += `<button class="edit-agent-btn" onclick="openEditAgentModal(${agent.id})" title="Modifier l'agent">✏️</button>`;
+    }
+    
+    // Bouton archiver/déployer
     if (showArchiveBtn) {
         if (agent.est_archive) {
-            archiveButtonHTML = `<button class="deploy-agent-btn" onclick="deployAgent(${agent.id})" title="Déployer l'agent">🔄</button>`;
+            buttonsHTML += `<button class="deploy-agent-btn" onclick="deployAgent(${agent.id})" title="Déployer l'agent">🔄</button>`;
         } else {
-            archiveButtonHTML = `<button class="archive-agent-btn" onclick="archiveAgent(${agent.id})" title="Archiver l'agent">📦</button>`;
+            buttonsHTML += `<button class="archive-agent-btn" onclick="archiveAgent(${agent.id})" title="Archiver l'agent">📦</button>`;
         }
     }
+    
+    // Bouton supprimer (seulement si archivé et Direction)
+    if (showDeleteBtn) {
+        buttonsHTML += `<button class="delete-agent-btn" onclick="deleteAgent(${agent.id})" title="Supprimer définitivement">🗑️</button>`;
+    }
+    
+    // Insigne de grade
+    const insigneUrl = getInsigneUrl(agent.grade);
+    const insigneHTML = insigneUrl ? `<img src="${insigneUrl}" alt="Insigne ${agent.grade}" class="grade-insigne">` : '';
     
     modal.innerHTML = `
         <div class="agent-modal-content">
             <span class="modal-close" onclick="closeAgentModal()">&times;</span>
             
             <div class="agent-sidebar">
-                ${showEditBtn ? `<button class="edit-agent-btn" onclick="openEditAgentModal(${agent.id})" title="Modifier l'agent">✏️</button>` : ''}
-                ${archiveButtonHTML}
+                ${buttonsHTML}
                 <div class="agent-photo" ${permissionLevel === 1 ? `onclick="uploadPhoto(${agent.id})"` : ''}>
                     ${photoHTML}
                     ${permissionLevel === 1 ? '<div class="agent-photo-overlay">Cliquer pour changer</div>' : ''}
                 </div>
                 
-                <div class="agent-grade-badge">${agent.grade}</div>
+                <div class="agent-grade-badge">
+                    ${insigneHTML}
+                    <span class="grade-text">${agent.grade}</span>
+                </div>
                 <div class="agent-fullname">${agent.prenom} ${agent.nom}</div>
                 ${agent.est_archive ? '<div class="agent-archived-badge">ARCHIVÉ</div>' : ''}
                 
@@ -1533,6 +1576,42 @@ async function openEditAgentModal(agentId) {
     } catch (error) {
         console.error('Erreur:', error);
         alert('Erreur lors du chargement des données');
+    }
+}
+
+// ========================================
+// FONCTION SUPPRESSION
+// ========================================
+
+async function deleteAgent(agentId) {
+    if (!confirm('⚠️ ATTENTION ⚠️\n\nVous êtes sur le point de SUPPRIMER DÉFINITIVEMENT cet agent de la base de données.\n\nCette action est IRRÉVERSIBLE.\n\nÊtes-vous absolument certain ?')) {
+        return;
+    }
+    
+    // Double confirmation
+    if (!confirm('Dernière confirmation : voulez-vous vraiment supprimer cet agent définitivement ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/delete', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agent_id: agentId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            closeAgentModal();
+            alert('Agent supprimé définitivement.');
+            initPersonnel();
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la suppression');
     }
 }
 
