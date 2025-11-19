@@ -832,7 +832,7 @@ body {
     padding: 0.7rem 1.5rem;
     border-radius: 6px;
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: 1.2rem;
     margin-bottom: 0.8rem;
     text-align: center;
     width: 100%;
@@ -1678,3 +1678,4 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
