@@ -542,6 +542,17 @@ async function openAgentModal(agentId) {
     }
 }
 
+const TIMEZONE = 'Europe/Brussels';
+
+function convertToLocalTime(dateString) {
+    if (!dateString) return null;
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
+    
+    return date;
+}
+
 function formatDate(dateString) {
     if (!dateString) return 'Non renseignée';
     
@@ -556,16 +567,19 @@ function formatDate(dateString) {
         return `${day}/${month}/${year}`;
     }
     
-    // Essayer de parser avec Date
-    const date = new Date(dateString);
-    if (!isNaN(date.getTime())) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    }
+    // Essayer de parser avec Date en tenant compte du fuseau horaire
+    const date = convertToLocalTime(dateString);
+    if (!date) return 'Format invalide';
     
-    return 'Format invalide';
+    const options = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        timeZone: TIMEZONE
+    };
+    
+    const formatted = new Intl.DateTimeFormat('fr-BE', options).format(date);
+    return formatted;
 }
 
 function displayAgentModal(agent) {
@@ -619,6 +633,10 @@ function displayAgentModal(agent) {
     // Insigne de grade
     const insigneUrl = getInsigneUrl(agent.grade);
     const insigneHTML = insigneUrl ? `<img src="${insigneUrl}" alt="Insigne ${agent.grade}" class="grade-insigne">` : '';
+
+    // Service Strips
+    const serviceStripUrl = agent.date_entree ? getServiceStripUrl(agent.date_entree) : null;
+    const serviceStripHTML = serviceStripUrl ? `<img src="${serviceStripUrl}" alt="Service Strip" class="service-strip">` : ''; 
     
     modal.innerHTML = `
         <div class="agent-modal-content">
@@ -656,7 +674,10 @@ function displayAgentModal(agent) {
                     
                     <div class="agent-info-item">
                         <div class="agent-info-label">Date d'entrée</div>
-                        <div class="agent-info-value">${dateEntree}</div>
+                        <div class="agent-info-value service-info">
+                            <span>${dateEntree}</span>
+                            ${serviceStripHTML}
+                        </div>
                     </div>
                     
                     ${agent.specialisation_1 || agent.specialisation_2 ? `
@@ -1249,16 +1270,21 @@ function closeFormModal() {
 function formatDateTime(dateString) {
     if (!dateString) return 'Date inconnue';
     
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'Date invalide';
+    const date = convertToLocalTime(dateString);
+    if (!date) return 'Date invalide';
     
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const options = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: TIMEZONE,
+        hour12: false
+    };
     
-    return `${day}/${month}/${year} à ${hours}:${minutes}`;
+    const formatted = new Intl.DateTimeFormat('fr-BE', options).format(date);
+    return formatted.replace(',', ' à');
 }
 
 // ========================================
@@ -1616,6 +1642,50 @@ async function deleteAgent(agentId) {
 }
 
 // ========================================
+// SERVICE STRIPS
+// ========================================
+
+function calculateServiceMonths(dateEntree) {
+    if (!dateEntree) return 0;
+    
+    let entreeDate;
+    
+    // Convertir la date d'entrée (format DD/MM/YYYY ou YYYY-MM-DD)
+    if (dateEntree.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+        const [day, month, year] = dateEntree.split('/');
+        entreeDate = new Date(year, month - 1, day);
+    } else if (dateEntree.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        entreeDate = new Date(dateEntree);
+    } else {
+        return 0;
+    }
+    
+    const now = new Date();
+    
+    // Calculer la différence en mois
+    const yearsDiff = now.getFullYear() - entreeDate.getFullYear();
+    const monthsDiff = now.getMonth() - entreeDate.getMonth();
+    
+    return yearsDiff * 12 + monthsDiff;
+}
+
+function getServiceStripUrl(dateEntree) {
+    const months = calculateServiceMonths(dateEntree);
+    
+    // Déterminer le service strip approprié (palier le plus proche sans dépasser)
+    if (months >= 24) return 'imgs/STRIP_8.png';
+    if (months >= 18) return 'imgs/STRIP_7.png';
+    if (months >= 15) return 'imgs/STRIP_6.png';
+    if (months >= 12) return 'imgs/STRIP_5.png';
+    if (months >= 9) return 'imgs/STRIP_4.png';
+    if (months >= 6) return 'imgs/STRIP_3.png';
+    if (months >= 3) return 'imgs/STRIP_2.png';
+    if (months >= 1) return 'imgs/STRIP_1.png';
+    
+    return null; // Moins d'1 mois = pas de service strip
+}
+
+// ========================================
 // RAPPORTS - CHARGEMENT ET AFFICHAGE
 // ========================================
 
@@ -1874,4 +1944,3 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
