@@ -887,12 +887,12 @@ body {
 .service-info {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 2rem;
     flex-wrap: wrap;
 }
 
 .service-strip {
-    height: 48px;
+    height: 96px;
     width: auto;
     max-width: 120px;
     object-fit: contain;
@@ -1695,4 +1695,5 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
