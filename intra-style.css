@@ -882,6 +882,23 @@ body {
     line-height: 1.4;
 }
 
+/* SERVICE STRIPS - À ajouter dans intra-style.css */
+
+.service-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.service-strip {
+    height: 24px;
+    width: auto;
+    max-width: 120px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
 /* CONTAINER DROIT */
 
 .agent-main-content {
@@ -1678,4 +1695,3 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
-
