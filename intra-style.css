@@ -892,9 +892,9 @@ body {
 }
 
 .service-strip {
-    height: 40px; /* Augmenté de 24px à 40px */
-    width: auto;
-    max-width: 200px; /* Augmenté de 120px à 200px */
+    height: 50px; /* Hauteur fixe augmentée */
+    width: auto; /* Largeur automatique selon ratio */
+    max-width: none; /* Pas de limite de largeur ! */
     object-fit: contain;
     filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
 }
@@ -1695,6 +1695,7 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
 
