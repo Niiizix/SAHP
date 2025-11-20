@@ -887,16 +887,16 @@ body {
 .service-info {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.5rem; /* Espacement augmenté entre date et strip */
     flex-wrap: wrap;
 }
 
 .service-strip {
-    height: 48px;
+    height: 40px; /* Augmenté de 24px à 40px */
     width: auto;
-    max-width: 120px;
+    max-width: 200px; /* Augmenté de 120px à 200px */
     object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
 }
 
 /* CONTAINER DROIT */
@@ -1695,6 +1695,7 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
 
