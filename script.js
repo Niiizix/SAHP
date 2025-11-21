@@ -1669,20 +1669,40 @@ function calculateServiceMonths(dateEntree) {
     return yearsDiff * 12 + monthsDiff;
 }
 
-function getServiceStripUrl(dateEntree) {
+function getServiceStripData(dateEntree) {
     const months = calculateServiceMonths(dateEntree);
     
-    // Déterminer le service strip approprié (palier le plus proche sans dépasser)
-    if (months >= 24) return 'imgs/STRIP_8.png';
-    if (months >= 18) return 'imgs/STRIP_7.png';
-    if (months >= 15) return 'imgs/STRIP_6.png';
-    if (months >= 12) return 'imgs/STRIP_5.png';
-    if (months >= 9) return 'imgs/STRIP_4.png';
-    if (months >= 6) return 'imgs/STRIP_3.png';
-    if (months >= 3) return 'imgs/STRIP_2.png';
-    if (months >= 1) return 'imgs/STRIP_1.png';
+    let url = null;
+    let stripCount = 0;
     
-    return null; // Moins d'1 mois = pas de service strip
+    // Déterminer le service strip approprié
+    if (months >= 24) {
+        url = 'imgs/STRIP_8.png';
+        stripCount = 8; // 24 mois = 8 strips
+    } else if (months >= 18) {
+        url = 'imgs/STRIP_7.png';
+        stripCount = 6; // 18 mois = 6 strips
+    } else if (months >= 15) {
+        url = 'imgs/STRIP_6.png';
+        stripCount = 5; // 15 mois = 5 strips
+    } else if (months >= 12) {
+        url = 'imgs/STRIP_5.png';
+        stripCount = 4; // 12 mois = 4 strips
+    } else if (months >= 9) {
+        url = 'imgs/STRIP_4.png';
+        stripCount = 3; // 9 mois = 3 strips
+    } else if (months >= 6) {
+        url = 'imgs/STRIP_3.png';
+        stripCount = 2; // 6 mois = 2 strips
+    } else if (months >= 3) {
+        url = 'imgs/STRIP_2.png';
+        stripCount = 1; // 3 mois = 1 strip
+    } else if (months >= 1) {
+        url = 'imgs/STRIP_1.png';
+        stripCount = 1; // 1 mois = 1 strip
+    }
+    
+    return { url, stripCount };
 }
 
 // ========================================
