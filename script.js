@@ -637,9 +637,9 @@ function displayAgentModal(agent) {
     // Service Strips
      let serviceStripHTML = '';
     if (agent.date_entree) {
-        const serviceStripData = getServiceStripData(agent.date_entree);
-        if (serviceStripData.url) {
-            serviceStripHTML = `<img src="${serviceStripData.url}" alt="Service Strip" class="service-strip strips-${serviceStripData.stripCount}">`;
+        const  = get(agent.date_entree);
+        if (.url) {
+            serviceStripHTML = `<img src="${.url}" alt="Service Strip" class="service-strip strips-${.stripCount}">`;
         }
     }
     
@@ -1681,30 +1681,32 @@ function getServiceStripData(dateEntree) {
     let stripCount = 0;
     
     // Déterminer le service strip approprié
-    if (months >= 1) {
-        url = 'imgs/STRIPS_1.png';
-        stripCount = 1;
-    } else if (months >= 3) {
-        url = 'imgs/STRIPS_2.png';
-        stripCount = 2; // 18 mois = 6 strips
-    } else if (months >= 6) {
-        url = 'imgs/STRIPS_3.png';
-        stripCount = 3; // 15 mois = 5 strips
-    } else if (months >= 9) {
-        url = 'imgs/STRIPS_4.png';
-        stripCount = 4; // 12 mois = 4 strips
-    } else if (months >= 12) {
-        url = 'imgs/STRIPS_5.png';
-        stripCount = 5; // 9 mois = 3 strips
-    } else if (months >= 15) {
-        url = 'imgs/STRIPS_6.png';
-        stripCount = 6; // 6 mois = 2 strips
+    if (months >= 24) {
+        url = 'imgs/STRIPS_8.png';
+        stripCount = 8; // 24 mois = 8 strips
     } else if (months >= 18) {
         url = 'imgs/STRIPS_7.png';
-        stripCount = 7; // 3 mois = 1 strip
-    } else if (months >= 24) {
-        url = 'imgs/STRIPS_8.png';
-        stripCount = 8; // 1 mois = 1 strip
+        stripCount = 7; // 18 mois = 7 strips
+    } else if (months >= 15) {
+        url = 'imgs/STRIPS_6.png';
+        stripCount = 6; // 15 mois = 6 strips
+    } else if (months >= 12) {
+        url = 'imgs/STRIPS_5.png';
+        stripCount = 5; // 12 mois = 5 strips
+    } else if (months >= 9) {
+        url = 'imgs/STRIPS_4.png';
+        stripCount = 4; // 9 mois = 4 strips
+    } else if (months >= 6) {
+        url = 'imgs/STRIPS_3.png';
+        stripCount = 3; // 6 mois = 3 strips
+    } else if (months >= 3) {
+        url = 'imgs/STRIPS_2.png';
+        stripCount = 2; // 3 mois = 2 strip
+    } else if (months >= 1) {
+        url = 'imgs/STRIPS_1.png';
+        stripCount = 1; // 1 mois = 1 strip
+    } else {
+        stripCount = 0; // Autres = 0 strip
     }
     
     return { url, stripCount };
@@ -1969,6 +1971,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
