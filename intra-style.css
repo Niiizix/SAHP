@@ -898,7 +898,7 @@ body {
 }
 
 .service-strip.strips-1 {
-    height: 15px; /* 1 strip */
+    height: 18px; /* 1 strip */
 }
 
 .service-strip.strips-2 {
@@ -906,23 +906,23 @@ body {
 }
 
 .service-strip.strips-3 {
-    height: 21px; /* 3 strips */
+    height: 18px; /* 3 strips */
 }
 
 .service-strip.strips-4 {
-    height: 24px; /* 4 strips */
+    height: 18px; /* 4 strips */
 }
 
 .service-strip.strips-5 {
-    height: 27px; /* 5 strips */
+    height: 18px; /* 5 strips */
 }
 
 .service-strip.strips-6 {
-    height: 30px; /* 6 strips */
+    height: 21px; /* 6 strips */
 }
 
 .service-strip.strips-8 {
-    height: 33px; /* 8 strips = plus grand */
+    height: 21px; /* 8 strips = plus grand */
 }
 
 /* CONTAINER DROIT */
@@ -1721,5 +1721,6 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
