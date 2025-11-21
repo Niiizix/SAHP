@@ -637,9 +637,9 @@ function displayAgentModal(agent) {
     // Service Strips
      let serviceStripHTML = '';
     if (agent.date_entree) {
-        const  = get(agent.date_entree);
-        if (.url) {
-            serviceStripHTML = `<img src="${.url}" alt="Service Strip" class="service-strip strips-${.stripCount}">`;
+        const serviceStripData = getServiceStripData(agent.date_entree);
+        if (serviceStripData.url) {
+            serviceStripHTML = `<img src="${serviceStripData.url}" alt="Service Strip" class="service-strip strips-${serviceStripData.stripCount}">`;
         }
     }
     
@@ -1971,6 +1971,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
