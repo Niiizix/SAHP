@@ -882,21 +882,47 @@ body {
     line-height: 1.4;
 }
 
-/* SERVICE STRIPS - À ajouter dans intra-style.css */
+/* SERVICE STRIPS */
 
 .service-info {
     display: flex;
     align-items: center;
-    gap: 1.5rem; /* Espacement augmenté entre date et strip */
+    gap: 1.5rem;
     flex-wrap: wrap;
 }
 
 .service-strip {
-    height: 50px; /* Hauteur fixe augmentée */
-    width: auto; /* Largeur automatique selon ratio */
-    max-width: none; /* Pas de limite de largeur ! */
+    width: auto;
     object-fit: contain;
     filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+}
+
+.service-strip.strips-1 {
+    height: 35px; /* 1 strip */
+}
+
+.service-strip.strips-2 {
+    height: 38px; /* 2 strips */
+}
+
+.service-strip.strips-3 {
+    height: 40px; /* 3 strips */
+}
+
+.service-strip.strips-4 {
+    height: 42px; /* 4 strips */
+}
+
+.service-strip.strips-5 {
+    height: 44px; /* 5 strips */
+}
+
+.service-strip.strips-6 {
+    height: 46px; /* 6 strips */
+}
+
+.service-strip.strips-8 {
+    height: 50px; /* 8 strips = plus grand */
 }
 
 /* CONTAINER DROIT */
@@ -1695,10 +1721,3 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
-
-
-
-
-
-
-
