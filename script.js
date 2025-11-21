@@ -1686,25 +1686,27 @@ function getServiceStripData(dateEntree) {
         stripCount = 8; // 24 mois = 8 strips
     } else if (months >= 18) {
         url = 'imgs/STRIPS_7.png';
-        stripCount = 6; // 18 mois = 6 strips
+        stripCount = 7; // 18 mois = 6 strips
     } else if (months >= 15) {
         url = 'imgs/STRIPS_6.png';
-        stripCount = 5; // 15 mois = 5 strips
+        stripCount = 6; // 15 mois = 5 strips
     } else if (months >= 12) {
         url = 'imgs/STRIPS_5.png';
-        stripCount = 4; // 12 mois = 4 strips
+        stripCount = 5; // 12 mois = 4 strips
     } else if (months >= 9) {
         url = 'imgs/STRIPS_4.png';
-        stripCount = 3; // 9 mois = 3 strips
+        stripCount = 4; // 9 mois = 3 strips
     } else if (months >= 6) {
         url = 'imgs/STRIPS_3.png';
-        stripCount = 2; // 6 mois = 2 strips
+        stripCount = 3; // 6 mois = 2 strips
     } else if (months >= 3) {
         url = 'imgs/STRIPS_2.png';
-        stripCount = 1; // 3 mois = 1 strip
+        stripCount = 2; // 3 mois = 1 strip
     } else if (months >= 1) {
         url = 'imgs/STRIPS_1.png';
         stripCount = 1; // 1 mois = 1 strip
+    } else if (months < 1) {
+        stripcount = 0;
     }
     
     return { url, stripCount };
@@ -1969,4 +1971,5 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
