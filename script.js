@@ -1652,26 +1652,36 @@ async function deleteAgent(agentId) {
 
 function calculateServiceMonths(dateEntree) {
     if (!dateEntree) return 0;
-    
+
     let entreeDate;
-    
-    // Convertir la date d'entrée (format DD/MM/YYYY ou YYYY-MM-DD)
-    if (dateEntree.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+
+    // Format DD/MM/YYYY
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateEntree)) {
         const [day, month, year] = dateEntree.split('/');
         entreeDate = new Date(year, month - 1, day);
-    } else if (dateEntree.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    }
+    // Format YYYY-MM-DD
+    else if (/^\d{4}-\d{2}-\d{2}$/.test(dateEntree)) {
         entreeDate = new Date(dateEntree);
-    } else {
+    } 
+    else {
         return 0;
     }
-    
+
     const now = new Date();
-    
-    // Calculer la différence en mois
-    const yearsDiff = now.getFullYear() - entreeDate.getFullYear();
-    const monthsDiff = now.getMonth() - entreeDate.getMonth();
-    
-    return yearsDiff * 12 + monthsDiff;
+
+    let yearsDiff = now.getFullYear() - entreeDate.getFullYear();
+    let monthsDiff = now.getMonth() - entreeDate.getMonth();
+
+    let totalMonths = yearsDiff * 12 + monthsDiff;
+
+    // Si le jour actuel est plus petit que le jour d'entrée → on enlève 1 mois
+    if (now.getDate() < entreeDate.getDate()) {
+        totalMonths--;
+    }
+
+    // Si résultat négatif, on retourne 0
+    return Math.max(0, totalMonths);
 }
 
 function getServiceStripData(dateEntree) {
@@ -1971,6 +1981,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
