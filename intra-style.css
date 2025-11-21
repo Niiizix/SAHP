@@ -898,11 +898,11 @@ body {
 }
 
 .service-strip.strips-1 {
-    height: 35px; /* 1 strip */
+    height: 32px; /* 1 strip */
 }
 
 .service-strip.strips-2 {
-    height: 38px; /* 2 strips */
+    height: 35px; /* 2 strips */
 }
 
 .service-strip.strips-3 {
@@ -1721,3 +1721,4 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
