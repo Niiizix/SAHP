@@ -635,8 +635,13 @@ function displayAgentModal(agent) {
     const insigneHTML = insigneUrl ? `<img src="${insigneUrl}" alt="Insigne ${agent.grade}" class="grade-insigne">` : '';
 
     // Service Strips
-    const serviceStripUrl = agent.date_entree ? getServiceStripData(agent.date_entree) : null;
-    const serviceStripHTML = serviceStripUrl ? `<img src="${serviceStripUrl}" alt="Service Strip" class="service-strip">` : ''; 
+     let serviceStripHTML = '';
+    if (agent.date_entree) {
+        const serviceStripData = getServiceStripData(agent.date_entree);
+        if (serviceStripData.url) {
+            serviceStripHTML = `<img src="${serviceStripData.url}" alt="Service Strip" class="service-strip strips-${serviceStripData.stripCount}">`;
+        }
+    }
     
     modal.innerHTML = `
         <div class="agent-modal-content">
@@ -1964,4 +1969,3 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
