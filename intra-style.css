@@ -745,31 +745,31 @@ body {
 
 /* Tailles adaptatives pour les service strips dans le tableau */
 .table-service-strip.strips-1 {
-    height: 22px;
+    height: 10px;
 }
 
 .table-service-strip.strips-2 {
-    height: 24px;
+    height: 10px;
 }
 
 .table-service-strip.strips-3 {
-    height: 26px;
+    height: 10px;
 }
 
 .table-service-strip.strips-4 {
-    height: 28px;
+    height: 10px;
 }
 
 .table-service-strip.strips-5 {
-    height: 30px;
+    height: 10px;
 }
 
 .table-service-strip.strips-6 {
-    height: 32px;
+    height: 11px;
 }
 
 .table-service-strip.strips-8 {
-    height: 35px;
+    height: 11px;
 }
 
 /* LIGNES ARCHIVÉES */
@@ -1849,3 +1849,4 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
