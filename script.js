@@ -414,29 +414,43 @@ function displayPersonnel(agents) {
         html += `
             <div class="poste-group">
                 <div class="poste-header ${posteClass}">${poste}</div>
-                <table class="personnel-table">
+                <table class="personnel-table-new">
                     <thead>
                         <tr>
-                            <th>Poste</th>
-                            <th>Nom</th>
-                            <th>Prénom</th>
+                            <th>Date d'entrée</th>
                             <th>Grade</th>
-                            <th>Matricule</th>
+                            <th>Insigne</th>
                             <th>Badge</th>
+                            <th>Nom</th>
+                            <th>Ancienneté</th>
                         </tr>
                     </thead>
                     <tbody>
         `;
         
         agentsInPoste.forEach(agent => {
+            const insigneUrl = getInsigneUrl(agent.grade);
+            const insigneHTML = insigneUrl ? `<img src="${insigneUrl}" alt="Insigne ${agent.grade}" class="table-insigne">` : '';
+            
+            const serviceMonths = calculateServiceMonths(agent.date_entree);
+            const serviceStripData = agent.date_entree ? getServiceStripData(agent.date_entree) : { url: null, stripCount: 0 };
+            const serviceStripHTML = serviceStripData.url 
+                ? `<img src="${serviceStripData.url}" alt="Service Strip" class="table-service-strip strips-${serviceStripData.stripCount}">` 
+                : '';
+            
             html += `
                 <tr class="agent-row" data-agent-id="${agent.id}">
-                    <td><span class="poste-badge ${posteClass}">${agent.poste_affectation}</span></td>
-                    <td>${agent.nom}</td>
-                    <td>${agent.prenom}</td>
-                    <td>${agent.grade}</td>
-                    <td>${agent.matricule}</td>
-                    <td>${agent.badge}</td>
+                    <td class="td-date">${formatDate(agent.date_entree)}</td>
+                    <td class="td-grade">${agent.grade}</td>
+                    <td class="td-insigne">${insigneHTML}</td>
+                    <td class="td-badge">${agent.badge}</td>
+                    <td class="td-nom">${agent.nom} ${agent.prenom}</td>
+                    <td class="td-anciennete">
+                        <div class="anciennete-container">
+                            <span class="anciennete-months">${serviceMonths} mois</span>
+                            ${serviceStripHTML}
+                        </div>
+                    </td>
                 </tr>
             `;
         });
@@ -458,30 +472,43 @@ function displayPersonnel(agents) {
                     <span class="archive-toggle-icon">▶</span> Archives (${agentsArchives.length})
                 </div>
                 <div class="archives-content" style="display: none;">
-                    <table class="personnel-table">
+                    <table class="personnel-table-new">
                         <thead>
                             <tr>
-                                <th>Ancien Poste</th>
-                                <th>Nom</th>
-                                <th>Prénom</th>
+                                <th>Date d'entrée</th>
                                 <th>Grade</th>
-                                <th>Matricule</th>
+                                <th>Insigne</th>
                                 <th>Badge</th>
+                                <th>Nom</th>
+                                <th>Ancienneté</th>
                             </tr>
                         </thead>
                         <tbody>
         `;
         
         agentsArchives.forEach(agent => {
-            const posteClass = agent.poste_affectation.toLowerCase().replace(' ', '');
+            const insigneUrl = getInsigneUrl(agent.grade);
+            const insigneHTML = insigneUrl ? `<img src="${insigneUrl}" alt="Insigne ${agent.grade}" class="table-insigne">` : '';
+            
+            const serviceMonths = calculateServiceMonths(agent.date_entree);
+            const serviceStripData = agent.date_entree ? getServiceStripData(agent.date_entree) : { url: null, stripCount: 0 };
+            const serviceStripHTML = serviceStripData.url 
+                ? `<img src="${serviceStripData.url}" alt="Service Strip" class="table-service-strip strips-${serviceStripData.stripCount}">` 
+                : '';
+            
             html += `
                 <tr class="agent-row archived-row" data-agent-id="${agent.id}">
-                    <td><span class="poste-badge ${posteClass}">${agent.poste_affectation}</span></td>
-                    <td>${agent.nom}</td>
-                    <td>${agent.prenom}</td>
-                    <td>${agent.grade}</td>
-                    <td>${agent.matricule}</td>
-                    <td>${agent.badge}</td>
+                    <td class="td-date">${formatDate(agent.date_entree)}</td>
+                    <td class="td-grade">${agent.grade}</td>
+                    <td class="td-insigne">${insigneHTML}</td>
+                    <td class="td-badge">${agent.badge}</td>
+                    <td class="td-nom">${agent.nom} ${agent.prenom}</td>
+                    <td class="td-anciennete">
+                        <div class="anciennete-container">
+                            <span class="anciennete-months">${serviceMonths} mois</span>
+                            ${serviceStripHTML}
+                        </div>
+                    </td>
                 </tr>
             `;
         });
@@ -1652,36 +1679,26 @@ async function deleteAgent(agentId) {
 
 function calculateServiceMonths(dateEntree) {
     if (!dateEntree) return 0;
-
+    
     let entreeDate;
-
-    // Format DD/MM/YYYY
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateEntree)) {
+    
+    // Convertir la date d'entrée (format DD/MM/YYYY ou YYYY-MM-DD)
+    if (dateEntree.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
         const [day, month, year] = dateEntree.split('/');
         entreeDate = new Date(year, month - 1, day);
-    }
-    // Format YYYY-MM-DD
-    else if (/^\d{4}-\d{2}-\d{2}$/.test(dateEntree)) {
+    } else if (dateEntree.match(/^\d{4}-\d{2}-\d{2}$/)) {
         entreeDate = new Date(dateEntree);
-    } 
-    else {
+    } else {
         return 0;
     }
-
+    
     const now = new Date();
-
-    let yearsDiff = now.getFullYear() - entreeDate.getFullYear();
-    let monthsDiff = now.getMonth() - entreeDate.getMonth();
-
-    let totalMonths = yearsDiff * 12 + monthsDiff;
-
-    // Si le jour actuel est plus petit que le jour d'entrée → on enlève 1 mois
-    if (now.getDate() < entreeDate.getDate()) {
-        totalMonths--;
-    }
-
-    // Si résultat négatif, on retourne 0
-    return Math.max(0, totalMonths);
+    
+    // Calculer la différence en mois
+    const yearsDiff = now.getFullYear() - entreeDate.getFullYear();
+    const monthsDiff = now.getMonth() - entreeDate.getMonth();
+    
+    return yearsDiff * 12 + monthsDiff;
 }
 
 function getServiceStripData(dateEntree) {
@@ -1692,31 +1709,29 @@ function getServiceStripData(dateEntree) {
     
     // Déterminer le service strip approprié
     if (months >= 24) {
-        url = 'imgs/STRIPS_8.png';
+        url = 'imgs/STRIP_8.png';
         stripCount = 8; // 24 mois = 8 strips
     } else if (months >= 18) {
-        url = 'imgs/STRIPS_7.png';
-        stripCount = 7; // 18 mois = 7 strips
+        url = 'imgs/STRIP_7.png';
+        stripCount = 6; // 18 mois = 6 strips
     } else if (months >= 15) {
-        url = 'imgs/STRIPS_6.png';
-        stripCount = 6; // 15 mois = 6 strips
+        url = 'imgs/STRIP_6.png';
+        stripCount = 5; // 15 mois = 5 strips
     } else if (months >= 12) {
-        url = 'imgs/STRIPS_5.png';
-        stripCount = 5; // 12 mois = 5 strips
+        url = 'imgs/STRIP_5.png';
+        stripCount = 4; // 12 mois = 4 strips
     } else if (months >= 9) {
-        url = 'imgs/STRIPS_4.png';
-        stripCount = 4; // 9 mois = 4 strips
+        url = 'imgs/STRIP_4.png';
+        stripCount = 3; // 9 mois = 3 strips
     } else if (months >= 6) {
-        url = 'imgs/STRIPS_3.png';
-        stripCount = 3; // 6 mois = 3 strips
+        url = 'imgs/STRIP_3.png';
+        stripCount = 2; // 6 mois = 2 strips
     } else if (months >= 3) {
-        url = 'imgs/STRIPS_2.png';
-        stripCount = 2; // 3 mois = 2 strip
+        url = 'imgs/STRIP_2.png';
+        stripCount = 1; // 3 mois = 1 strip
     } else if (months >= 1) {
-        url = 'imgs/STRIPS_1.png';
+        url = 'imgs/STRIP_1.png';
         stripCount = 1; // 1 mois = 1 strip
-    } else {
-        stripCount = 0; // Autres = 0 strip
     }
     
     return { url, stripCount };
@@ -1981,9 +1996,3 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-
-
-
-
-
