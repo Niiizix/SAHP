@@ -774,11 +774,15 @@ body {
     align-items: center;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 90vh; /* Même hauteur max que le parent */
+    overflow-y: auto; /* Scroll si contenu trop long */
+    overflow-x: hidden; /* Pas de scroll horizontal */
 }
 
-/* Scrollbar custom pour la sidebar */
+.agent-sidebar > * {
+    flex-shrink: 0; /* Empêche tous les éléments de rétrécir */
+}
+
 .agent-sidebar::-webkit-scrollbar {
     width: 8px;
 }
@@ -800,6 +804,7 @@ body {
 .agent-photo {
     width: 230px;
     height: 290px;
+    min-height: 290px; /* Hauteur minimale fixe */
     border-radius: 8px;
     overflow: hidden;
     background: #34495e;
@@ -808,6 +813,7 @@ body {
     position: relative;
     cursor: pointer;
     transition: border-color 0.3s ease;
+    flex-shrink: 0; /* La photo ne peut pas rétrécir */
 }
 
 .agent-photo:hover {
@@ -854,7 +860,7 @@ body {
     padding: 0.7rem 1.5rem;
     border-radius: 6px;
     font-weight: 600;
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     margin-bottom: 0.8rem;
     text-align: center;
     width: 100%;
@@ -864,6 +870,7 @@ body {
     justify-content: center;
     gap: 1rem;
     min-height: 50px;
+    flex-shrink: 0; /* Le badge ne peut pas rétrécir */
 }
 
 .agent-fullname {
@@ -873,10 +880,12 @@ body {
     text-align: center;
     margin-bottom: 2rem;
     line-height: 1.3;
+    flex-shrink: 0; /* Le nom ne peut pas rétrécir */
 }
 
 .agent-info-list {
     width: 100%;
+    flex-shrink: 0; /* La liste d'infos ne peut pas rétrécir */
 }
 
 .agent-info-item {
@@ -955,7 +964,7 @@ body {
     border-radius: 12px;
     padding: 2.5rem;
     overflow-y: auto;
-    max-height: 90vh;
+    max-height: 90vh; /* Même hauteur que la sidebar */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
@@ -1017,10 +1026,12 @@ body {
     .agent-modal-content {
         flex-direction: column;
         max-width: 600px;
+        max-height: none; /* Pas de limite en mobile */
     }
     
     .agent-sidebar {
         width: 100%;
+        max-height: none; /* Pas de scroll forcé en mobile */
     }
     
     .agent-main-content {
