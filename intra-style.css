@@ -641,7 +641,7 @@ body {
     background: #273c5b;
 }
 
-.personnel-table {
+.personnel-table-new {
     width: 100%;
     background: white;
     border-collapse: collapse;
@@ -650,11 +650,11 @@ body {
     overflow: hidden;
 }
 
-.personnel-table thead {
+.personnel-table-new thead {
     background: #f1f5f9;
 }
 
-.personnel-table th {
+.personnel-table-new th {
     padding: 1rem;
     text-align: left;
     font-weight: 600;
@@ -663,44 +663,139 @@ body {
     border-bottom: 2px solid #e0e0e0;
 }
 
-.personnel-table tbody tr {
+.personnel-table-new tbody tr {
     transition: background 0.2s ease;
 }
 
-.personnel-table tbody tr:hover {
+.personnel-table-new tbody tr:hover {
     background: #f8fafc;
 }
 
-.personnel-table td {
+.personnel-table-new td {
     padding: 0.9rem 1rem;
     border-bottom: 1px solid #e0e0e0;
     color: #333;
     font-size: clamp(0.85rem, 0.9vw + 0.3rem, 0.9rem);
+    vertical-align: middle;
 }
 
-.personnel-table tbody tr:last-child td {
+.personnel-table-new tbody tr:last-child td {
     border-bottom: none;
 }
 
-.poste-badge {
-    display: inline-block;
-    padding: 0.3rem 0.8rem;
-    border-radius: 4px;
+/* COLONNES SPÉCIFIQUES */
+
+.td-date {
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.td-grade {
     font-weight: 600;
-    font-size: clamp(0.8rem, 0.85vw + 0.2rem, 0.85rem);
-    color: white;
+    color: #273c5b;
 }
 
-.poste-badge.lamesa {
-    background: #f59e0b;
+.td-insigne {
+    text-align: center;
+    width: 80px;
 }
 
-.poste-badge.grapeseed {
-    background: #10b981;
+.table-insigne {
+    height: 30px;
+    width: auto;
+    max-width: 70px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
 }
 
-.poste-badge.chumash {
-    background: #273c5b;
+.td-badge {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #f59e0b;
+}
+
+.td-nom {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.td-anciennete {
+    min-width: 200px;
+}
+
+.anciennete-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.anciennete-months {
+    font-weight: 600;
+    color: #273c5b;
+    white-space: nowrap;
+    min-width: 60px;
+}
+
+.table-service-strip {
+    width: auto;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+/* Tailles adaptatives pour les service strips dans le tableau */
+.table-service-strip.strips-1 {
+    height: 22px;
+}
+
+.table-service-strip.strips-2 {
+    height: 24px;
+}
+
+.table-service-strip.strips-3 {
+    height: 26px;
+}
+
+.table-service-strip.strips-4 {
+    height: 28px;
+}
+
+.table-service-strip.strips-5 {
+    height: 30px;
+}
+
+.table-service-strip.strips-6 {
+    height: 32px;
+}
+
+.table-service-strip.strips-8 {
+    height: 35px;
+}
+
+/* LIGNES ARCHIVÉES */
+
+.archived-row {
+    opacity: 0.6;
+}
+
+.archived-row:hover {
+    opacity: 0.8;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1400px) {
+    .personnel-table-new {
+        font-size: 0.85rem;
+    }
+    
+    .td-anciennete {
+        min-width: 180px;
+    }
+    
+    .anciennete-container {
+        gap: 0.8rem;
+    }
 }
 
 .no-results {
