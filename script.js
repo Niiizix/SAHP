@@ -686,7 +686,7 @@ function displayAgentModal(agent) {
                     <span class="grade-text">${agent.grade}</span>
                 </div>
                 <div class="agent-fullname">${agent.prenom} ${agent.nom}</div>
-                ${agent.est_archive ? '<div class="agent-archived-badge">ARCHIVÉ</div>' : ''}
+                ${agent.est_archive ? `<div class="agent-archived-badge">ARCHIVÉ LE ${formatDate(agent.date_archivage)}</div>` : ''}
                 
                 <div class="agent-info-list">
                     <div class="agent-info-item">
@@ -2006,3 +2006,4 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
