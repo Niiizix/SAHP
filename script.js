@@ -1940,6 +1940,11 @@ function closeTypeRapportModal() {
     }
 }
 
+// ========================================
+// FORMULAIRE RAPPORT D'ARRESTATION COMPLET
+// À REMPLACER dans script.js
+// ========================================
+
 let currentCitoyen = null; // Citoyen trouvé dans la BDD
 let mugshotFiles = { face: null, gauche: null, droit: null }; // Photos uploadées
 
@@ -2064,9 +2069,19 @@ async function checkCitoyen() {
         
         if (data.found) {
             currentCitoyen = data.citoyen;
+            
+            // PRÉ-REMPLIR LES CHAMPS avec les données existantes
+            document.getElementById('lieu_residence').value = data.citoyen.lieu_residence || '';
+            document.getElementById('caracteristiques').value = data.citoyen.caracteristiques_physiques || '';
+            
             displayMugshotCheck(data.citoyen);
         } else {
             currentCitoyen = null;
+            
+            // VIDER LES CHAMPS si pas trouvé
+            document.getElementById('lieu_residence').value = '';
+            document.getElementById('caracteristiques').value = '';
+            
             displayMugshotUpload();
         }
     } catch (error) {
@@ -2221,9 +2236,12 @@ async function submitRapportArrestation(agentData) {
             const memeApparence = document.querySelector('input[name="meme_apparence"]:checked')?.value === 'oui';
             
             if (!memeApparence) {
-                // Upload nouveaux mugshots
+                // Upload nouveaux mugshots ET mettre à jour les infos
                 const mugshots = await uploadMugshots();
-                await updateCitoyenMugshots(currentCitoyen.id, mugshots);
+                await updateCitoyen(currentCitoyen.id, mugshots);
+            } else {
+                // Juste mettre à jour les infos (adresse, caractéristiques)
+                await updateCitoyen(currentCitoyen.id, null);
             }
             
             citoyenId = currentCitoyen.id;
@@ -2341,23 +2359,31 @@ async function createCitoyen(mugshots) {
 }
 
 // ========================================
-// METTRE À JOUR MUGSHOTS
+// METTRE À JOUR UN CITOYEN EXISTANT (infos + mugshots optionnels)
 // ========================================
 
-async function updateCitoyenMugshots(citoyenId, mugshots) {
-    const response = await fetch('https://sahp.charliemoimeme.workers.dev/citoyen/update-mugshots', {
+async function updateCitoyen(citoyenId, mugshots = null) {
+    const updateData = {
+        citoyen_id: citoyenId,
+        lieu_residence: document.getElementById('lieu_residence').value,
+        caracteristiques_physiques: document.getElementById('caracteristiques').value
+    };
+    
+    // Si nouveaux mugshots, les ajouter
+    if (mugshots) {
+        updateData.mugshot_face = mugshots.face;
+        updateData.mugshot_gauche = mugshots.gauche;
+        updateData.mugshot_droit = mugshots.droit;
+    }
+    
+    const response = await fetch('https://sahp.charliemoimeme.workers.dev/citoyen/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            citoyen_id: citoyenId,
-            mugshot_face: mugshots.face,
-            mugshot_gauche: mugshots.gauche,
-            mugshot_droit: mugshots.droit
-        })
+        body: JSON.stringify(updateData)
     });
     
     const data = await response.json();
-    if (!data.success) throw new Error('Erreur mise à jour mugshots');
+    if (!data.success) throw new Error('Erreur mise à jour citoyen');
 }
 
 function closeRapportFormModal() {
@@ -2410,5 +2436,6 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
