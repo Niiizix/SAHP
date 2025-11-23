@@ -1940,29 +1940,433 @@ function closeTypeRapportModal() {
     }
 }
 
-// ========================================
-// MODALS CRÉATION RAPPORTS (PLACEHOLDERS)
-// ========================================
+let currentCitoyen = null; // Citoyen trouvé dans la BDD
+let mugshotFiles = { face: null, gauche: null, droit: null }; // Photos uploadées
 
 function openNewRapportArrestationModal() {
     closeTypeRapportModal();
-    alert('Formulaire de rapport d\'arrestation à implémenter');
-    // TODO: Créer le formulaire complet
-}
-
-function openNewRapportOISModal() {
-    closeTypeRapportModal();
-    alert('Formulaire de rapport OIS à implémenter');
-    // TODO: Créer le formulaire complet
+    
+    const agentData = JSON.parse(sessionStorage.getItem('agent'));
+    const now = new Date().toTimeString().slice(0, 5);
+    
+    // Reset des variables globales
+    currentCitoyen = null;
+    mugshotFiles = { face: null, gauche: null, droit: null };
+    
+    const modal = document.createElement('div');
+    modal.className = 'rapport-form-modal active';
+    modal.innerHTML = `
+        <div class="rapport-form-content">
+            <h3>📝 Rapport d'Arrestation</h3>
+            <form id="rapportArrestationForm">
+                
+                <!-- Section : Personne Arrêtée -->
+                <div class="form-section">
+                    <h4>👤 Personne Arrêtée</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nom *</label>
+                            <input type="text" id="citoyen_nom" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Prénom *</label>
+                            <input type="text" id="citoyen_prenom" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date de naissance * (JJ/MM/AAAA)</label>
+                            <input type="text" id="citoyen_ddn" placeholder="01/01/1990" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn-check-citoyen" onclick="checkCitoyen()">🔍 Vérifier dans la base</button>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Lieu de résidence *</label>
+                            <input type="text" id="lieu_residence" placeholder="123 Main Street, Los Santos" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Caractéristiques physiques spécifiques *</label>
+                            <textarea id="caracteristiques" rows="3" placeholder="Ex: Tatouage bras gauche, cicatrice front, etc." required></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Zone Mugshots -->
+                    <div id="mugshotZone" style="display: none;">
+                        <!-- Sera rempli dynamiquement -->
+                    </div>
+                </div>
+                
+                <!-- Section : Détails de l'arrestation -->
+                <div class="form-section">
+                    <h4>🚔 Détails de l'Arrestation</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Heure de lecture des droits *</label>
+                            <input type="time" id="heure_droits" value="${now}" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Contexte de l'interpellation *</label>
+                        <textarea id="contexte" rows="8" placeholder="Décrivez en détail le contexte et le déroulement de l'interpellation..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Faits retenus contre le suspect *</label>
+                        <textarea id="faits_retenus" rows="6" placeholder="Listez les faits et infractions retenus..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Autres informations sur le dossier</label>
+                        <textarea id="autres_infos" rows="4" placeholder="Informations complémentaires (facultatif)"></textarea>
+                    </div>
+                </div>
+                
+                <div class="rapport-form-buttons">
+                    <button type="button" class="form-btn cancel" onclick="closeRapportFormModal()">Annuler</button>
+                    <button type="submit" class="form-btn submit">Soumettre le rapport</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Gestion de la soumission
+    document.getElementById('rapportArrestationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await submitRapportArrestation(agentData);
+    });
+    
+    // Fermer en cliquant en dehors
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            if (confirm('Fermer le formulaire ? Les données non sauvegardées seront perdues.')) {
+                closeRapportFormModal();
+            }
+        }
+    });
 }
 
 // ========================================
-// MODAL DÉTAIL RAPPORT (PLACEHOLDER)
+// VÉRIFIER SI LE CITOYEN EXISTE
 // ========================================
 
-function openRapportModal(rapportId, rapportType) {
-    alert(`Affichage du rapport ${rapportType} #${rapportId} - À implémenter`);
-    // TODO: Créer la modal de détail complète
+async function checkCitoyen() {
+    const nom = document.getElementById('citoyen_nom').value.trim();
+    const prenom = document.getElementById('citoyen_prenom').value.trim();
+    const ddn = document.getElementById('citoyen_ddn').value.trim();
+    
+    if (!nom || !prenom || !ddn) {
+        alert('⚠️ Veuillez remplir Nom, Prénom et Date de naissance');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/citoyen/search?nom=${encodeURIComponent(nom)}&prenom=${encodeURIComponent(prenom)}&ddn=${encodeURIComponent(ddn)}`);
+        const data = await response.json();
+        
+        if (data.found) {
+            currentCitoyen = data.citoyen;
+            displayMugshotCheck(data.citoyen);
+        } else {
+            currentCitoyen = null;
+            displayMugshotUpload();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur lors de la vérification');
+    }
+}
+
+// ========================================
+// AFFICHER MUGSHOTS EXISTANTS
+// ========================================
+
+function displayMugshotCheck(citoyen) {
+    const zone = document.getElementById('mugshotZone');
+    
+    if (!citoyen.mugshot_face_url) {
+        displayMugshotUpload();
+        return;
+    }
+    
+    zone.innerHTML = `
+        <div class="mugshot-check-section">
+            <h5>📸 Mugshots existants</h5>
+            <div class="mugshots-display">
+                <div class="mugshot-item">
+                    <img src="${citoyen.mugshot_face_url}" alt="Face">
+                    <p>Face</p>
+                </div>
+                <div class="mugshot-item">
+                    <img src="${citoyen.mugshot_gauche_url}" alt="Profil gauche">
+                    <p>Profil Gauche</p>
+                </div>
+                <div class="mugshot-item">
+                    <img src="${citoyen.mugshot_droit_url}" alt="Profil droit">
+                    <p>Profil Droit</p>
+                </div>
+            </div>
+            <div class="mugshot-question">
+                <label>L'individu a-t-il toujours la même apparence ?</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="meme_apparence" value="oui" checked> Oui</label>
+                    <label><input type="radio" name="meme_apparence" value="non"> Non</label>
+                </div>
+            </div>
+            <div id="newMugshotUpload" style="display: none;"></div>
+        </div>
+    `;
+    zone.style.display = 'block';
+    
+    // Écouter le changement
+    document.querySelectorAll('input[name="meme_apparence"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'non') {
+                displayNewMugshotUpload();
+            } else {
+                document.getElementById('newMugshotUpload').style.display = 'none';
+            }
+        });
+    });
+}
+
+function displayNewMugshotUpload() {
+    const container = document.getElementById('newMugshotUpload');
+    container.innerHTML = `
+        <h5>📸 Nouveaux Mugshots</h5>
+        <div class="mugshot-upload-grid">
+            <div class="mugshot-upload-item">
+                <label>Photo de Face *</label>
+                <input type="file" accept="image/*" onchange="handleMugshotUpload(event, 'face')" required>
+                <div id="preview-face"></div>
+            </div>
+            <div class="mugshot-upload-item">
+                <label>Profil Gauche *</label>
+                <input type="file" accept="image/*" onchange="handleMugshotUpload(event, 'gauche')" required>
+                <div id="preview-gauche"></div>
+            </div>
+            <div class="mugshot-upload-item">
+                <label>Profil Droit *</label>
+                <input type="file" accept="image/*" onchange="handleMugshotUpload(event, 'droit')" required>
+                <div id="preview-droit"></div>
+            </div>
+        </div>
+    `;
+    container.style.display = 'block';
+}
+
+// ========================================
+// AFFICHER UPLOAD MUGSHOTS (NOUVEAU CITOYEN)
+// ========================================
+
+function displayMugshotUpload() {
+    const zone = document.getElementById('mugshotZone');
+    
+    zone.innerHTML = `
+        <div class="mugshot-upload-section">
+            <h5>📸 Mugshots (obligatoires)</h5>
+            <div class="mugshot-upload-grid">
+                <div class="mugshot-upload-item">
+                    <label>Photo de Face *</label>
+                    <input type="file" accept="image/*" onchange="handleMugshotUpload(event, 'face')" required>
+                    <div id="preview-face"></div>
+                </div>
+                <div class="mugshot-upload-item">
+                    <label>Profil Gauche *</label>
+                    <input type="file" accept="image/*" onchange="handleMugshotUpload(event, 'gauche')" required>
+                    <div id="preview-gauche"></div>
+                </div>
+                <div class="mugshot-upload-item">
+                    <label>Profil Droit *</label>
+                    <input type="file" accept="image/*" onchange="handleMugshotUpload(event, 'droit')" required>
+                    <div id="preview-droit"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    zone.style.display = 'block';
+}
+
+// ========================================
+// GÉRER UPLOAD MUGSHOT
+// ========================================
+
+function handleMugshotUpload(event, position) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    mugshotFiles[position] = file;
+    
+    // Preview
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById(`preview-${position}`).innerHTML = `<img src="${e.target.result}" alt="${position}" style="max-width: 100%; max-height: 150px; margin-top: 10px;">`;
+    };
+    reader.readAsDataURL(file);
+}
+
+// ========================================
+// SOUMETTRE LE RAPPORT
+// ========================================
+
+async function submitRapportArrestation(agentData) {
+    const submitBtn = document.querySelector('.form-btn.submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi en cours...';
+    
+    try {
+        // 1. Gérer le citoyen
+        let citoyenId;
+        
+        if (currentCitoyen) {
+            // Citoyen existe
+            const memeApparence = document.querySelector('input[name="meme_apparence"]:checked')?.value === 'oui';
+            
+            if (!memeApparence) {
+                // Upload nouveaux mugshots
+                const mugshots = await uploadMugshots();
+                await updateCitoyenMugshots(currentCitoyen.id, mugshots);
+            }
+            
+            citoyenId = currentCitoyen.id;
+        } else {
+            // Nouveau citoyen
+            const mugshots = await uploadMugshots();
+            citoyenId = await createCitoyen(mugshots);
+        }
+        
+        // 2. Créer le rapport
+        const rapportData = {
+            agent_id: agentData.id,
+            agent_nom: agentData.nom,
+            agent_prenom: agentData.prenom,
+            agent_badge: agentData.badge,
+            citoyen_id: citoyenId,
+            heure_lecture_droits: document.getElementById('heure_droits').value,
+            contexte_interpellation: document.getElementById('contexte').value,
+            faits_retenus: document.getElementById('faits_retenus').value,
+            autres_informations: document.getElementById('autres_infos').value
+        };
+        
+        // Récupérer agent_poste et agent_grade
+        const agentFullData = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentData.id}`).then(r => r.json());
+        rapportData.agent_poste = agentFullData.poste_affectation;
+        rapportData.agent_grade = agentFullData.grade;
+        
+        const response = await fetch('https://sahp.charliemoimeme.workers.dev/rapport/arrestation/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(rapportData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            closeRapportFormModal();
+            alert('✅ Rapport d\'arrestation créé avec succès !');
+            if (typeof initRapports === 'function') initRapports();
+        } else {
+            throw new Error(data.error);
+        }
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Soumettre le rapport';
+    }
+}
+
+// ========================================
+// UPLOAD MUGSHOTS VERS IMGBB
+// ========================================
+
+async function uploadMugshots() {
+    if (!mugshotFiles.face || !mugshotFiles.gauche || !mugshotFiles.droit) {
+        throw new Error('Les 3 mugshots sont obligatoires');
+    }
+    
+    const uploads = await Promise.all([
+        uploadToImgBB(mugshotFiles.face),
+        uploadToImgBB(mugshotFiles.gauche),
+        uploadToImgBB(mugshotFiles.droit)
+    ]);
+    
+    return {
+        face: uploads[0],
+        gauche: uploads[1],
+        droit: uploads[2]
+    };
+}
+
+async function uploadToImgBB(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const response = await fetch('https://sahp.charliemoimeme.workers.dev/upload-mugshot', {
+        method: 'POST',
+        body: formData
+    });
+    
+    const data = await response.json();
+    if (!data.success) throw new Error('Erreur upload mugshot');
+    
+    return data.url;
+}
+
+// ========================================
+// CRÉER UN CITOYEN
+// ========================================
+
+async function createCitoyen(mugshots) {
+    const citoyenData = {
+        nom: document.getElementById('citoyen_nom').value,
+        prenom: document.getElementById('citoyen_prenom').value,
+        date_naissance: document.getElementById('citoyen_ddn').value,
+        lieu_residence: document.getElementById('lieu_residence').value,
+        caracteristiques_physiques: document.getElementById('caracteristiques').value,
+        mugshot_face: mugshots.face,
+        mugshot_gauche: mugshots.gauche,
+        mugshot_droit: mugshots.droit
+    };
+    
+    const response = await fetch('https://sahp.charliemoimeme.workers.dev/citoyen/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(citoyenData)
+    });
+    
+    const data = await response.json();
+    if (!data.success) throw new Error('Erreur création citoyen');
+    
+    return data.citoyen_id;
+}
+
+// ========================================
+// METTRE À JOUR MUGSHOTS
+// ========================================
+
+async function updateCitoyenMugshots(citoyenId, mugshots) {
+    const response = await fetch('https://sahp.charliemoimeme.workers.dev/citoyen/update-mugshots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            citoyen_id: citoyenId,
+            mugshot_face: mugshots.face,
+            mugshot_gauche: mugshots.gauche,
+            mugshot_droit: mugshots.droit
+        })
+    });
+    
+    const data = await response.json();
+    if (!data.success) throw new Error('Erreur mise à jour mugshots');
+}
+
+function closeRapportFormModal() {
+    const modal = document.querySelector('.rapport-form-modal');
+    if (modal) {
+        modal.remove();
+    }
+    currentCitoyen = null;
+    mugshotFiles = { face: null, gauche: null, droit: null };
 }
 
 // ========================================
@@ -2006,4 +2410,5 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
