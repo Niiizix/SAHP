@@ -1916,6 +1916,14 @@ function openNewRapportTypeModal() {
                         Officer Involved Shooting - Usage de l'arme à feu par un agent.
                     </div>
                 </div>
+                
+                <div class="type-rapport-card" onclick="openNewRapportPlainteModal()">
+                    <div class="type-rapport-card-icon">📋</div>
+                    <div class="type-rapport-card-title">Plainte</div>
+                    <div class="type-rapport-card-desc">
+                        Enregistrer une plainte déposée par un citoyen.
+                    </div>
+                </div>
             </div>
             <div class="type-rapport-cancel">
                 <button onclick="closeTypeRapportModal()">Annuler</button>
@@ -2436,6 +2444,3 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-
-
