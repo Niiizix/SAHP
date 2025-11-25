@@ -1764,16 +1764,23 @@ async function initRapports() {
         const responseArrestations = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/arrestations');
         const arrestations = await responseArrestations.json();
         
-        // Charger les rapports OIS
-        const responseOIS = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/ois');
-        const ois = await responseOIS.json();
+        // Charger les rapports OIS (gérer si la route n'existe pas encore)
+        let ois = [];
+        try {
+            const responseOIS = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/ois');
+            if (responseOIS.ok) {
+                ois = await responseOIS.json();
+            }
+        } catch (e) {
+            console.log('Rapports OIS pas encore disponibles');
+        }
         
         loading.style.display = 'none';
         
         // Combiner et marquer le type
         const allRapports = [
-            ...arrestations.map(r => ({ ...r, type: 'arrestation' })),
-            ...ois.map(r => ({ ...r, type: 'ois' }))
+            ...(Array.isArray(arrestations) ? arrestations : []).map(r => ({ ...r, type: 'arrestation' })),
+            ...(Array.isArray(ois) ? ois : []).map(r => ({ ...r, type: 'ois' }))
         ];
         
         // Trier par date (plus récent en premier)
@@ -2444,3 +2451,4 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
