@@ -1764,23 +1764,16 @@ async function initRapports() {
         const responseArrestations = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/arrestations');
         const arrestations = await responseArrestations.json();
         
-        // Charger les rapports OIS (gérer si la route n'existe pas encore)
-        let ois = [];
-        try {
-            const responseOIS = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/ois');
-            if (responseOIS.ok) {
-                ois = await responseOIS.json();
-            }
-        } catch (e) {
-            console.log('Rapports OIS pas encore disponibles');
-        }
+        // Charger les rapports OIS
+        const responseOIS = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/ois');
+        const ois = await responseOIS.json();
         
         loading.style.display = 'none';
         
         // Combiner et marquer le type
         const allRapports = [
-            ...(Array.isArray(arrestations) ? arrestations : []).map(r => ({ ...r, type: 'arrestation' })),
-            ...(Array.isArray(ois) ? ois : []).map(r => ({ ...r, type: 'ois' }))
+            ...arrestations.map(r => ({ ...r, type: 'arrestation' })),
+            ...ois.map(r => ({ ...r, type: 'ois' }))
         ];
         
         // Trier par date (plus récent en premier)
@@ -1927,6 +1920,14 @@ function openNewRapportTypeModal() {
                 <div class="type-rapport-card" onclick="openNewRapportPlainteModal()">
                     <div class="type-rapport-card-icon">📋</div>
                     <div class="type-rapport-card-title">Plainte</div>
+                    <div class="type-rapport-card-desc">
+                        Enregistrer une plainte déposée par un citoyen.
+                    </div>
+                </div>
+
+                <div class="type-rapport-card" onclick="openNewRapportAccidentModal()">
+                    <div class="type-rapport-card-icon">🚘</div>
+                    <div class="type-rapport-card-title">Rapport d'accident</div>
                     <div class="type-rapport-card-desc">
                         Enregistrer une plainte déposée par un citoyen.
                     </div>
@@ -2451,4 +2452,3 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
