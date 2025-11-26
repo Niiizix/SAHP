@@ -715,7 +715,7 @@ body {
 
 /* Direction - Plus grands insignes */
 .table-insigne[alt*="Commissioner"] {
-    height: 30px;
+    height: 35px;
 }
 
 .table-insigne[alt*="Deputy Commissioner"] {
@@ -2183,6 +2183,7 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
 
