@@ -1925,11 +1925,11 @@ function openNewRapportTypeModal() {
                     </div>
                 </div>
 
-                <div class="type-rapport-card" onclick="openNewRapportAccidentModal()">
-                    <div class="type-rapport-card-icon">🚘</div>
-                    <div class="type-rapport-card-title">Rapport d'accident</div>
+                <div class="type-rapport-card" onclick="openNewRapportIncidentModal()">
+                    <div class="type-rapport-card-icon">📁​</div>
+                    <div class="type-rapport-card-title">Rapport d'incident</div>
                     <div class="type-rapport-card-desc">
-                        Enregistrer une plainte déposée par un citoyen.
+                        Pour documenter un incident et le faire remonter à la hiérarchie
                     </div>
                 </div>
             </div>
@@ -2452,3 +2452,4 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
