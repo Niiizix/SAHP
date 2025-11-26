@@ -719,19 +719,19 @@ body {
 }
 
 .table-insigne[alt*="Deputy Commissioner"] {
-    height: 15px;
+    height: 12px;
 }
 
 .table-insigne[alt*="Assistant Commissioner"] {
-    height: 15px;
+    height: 12px;
 }
 
 .table-insigne[alt*="Chief"] {
-    height: 15px;
+    height: 12px;
 }
 
 .table-insigne[alt*="Assistant Chief"] {
-    height: 15px;
+    height: 12px;
 }
 
 .td-badge {
@@ -2183,6 +2183,7 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
 
