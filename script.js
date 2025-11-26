@@ -126,12 +126,89 @@ function initLogin() {
 }
 
 // ========================================
+// VÉRIFICATION DES PERMISSIONS EN TEMPS RÉEL
+// ========================================
+
+async function verifyAgentAccess() {
+    const agentData = sessionStorage.getItem('agent');
+    
+    // Si pas connecté, rediriger vers login
+    if (!agentData) {
+        if (!window.location.pathname.includes('login.html') && !window.location.pathname.includes('index.html')) {
+            window.location.href = 'login.html';
+        }
+        return false;
+    }
+    
+    const agent = JSON.parse(agentData);
+    
+    try {
+        // Récupérer les infos actuelles de l'agent depuis la BDD
+        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agent.id}`);
+        
+        if (!response.ok) {
+            throw new Error('Agent non trouvé');
+        }
+        
+        const currentAgentData = await response.json();
+        
+        // VÉRIFICATION 1 : Agent archivé
+        if (currentAgentData.est_archive) {
+            sessionStorage.clear();
+            alert('⚠️ Votre compte a été archivé. Vous n\'avez plus accès à l\'intranet.');
+            window.location.href = 'login.html';
+            return false;
+        }
+        
+        // VÉRIFICATION 2 : Mettre à jour les données si le grade a changé
+        if (currentAgentData.grade !== agent.grade || 
+            currentAgentData.poste_affectation !== agent.poste_affectation ||
+            currentAgentData.nom !== agent.nom ||
+            currentAgentData.prenom !== agent.prenom) {
+            
+            // Mettre à jour les données en session
+            const updatedAgent = {
+                id: currentAgentData.id,
+                prenom: currentAgentData.prenom,
+                nom: currentAgentData.nom,
+                grade: currentAgentData.grade,
+                badge: currentAgentData.badge
+            };
+            
+            sessionStorage.setItem('agent', JSON.stringify(updatedAgent));
+            
+            // Afficher une notification si le grade a changé
+            if (currentAgentData.grade !== agent.grade) {
+                console.log(`Grade modifié : ${agent.grade} → ${currentAgentData.grade}`);
+                
+                // Recharger la page pour appliquer les nouvelles permissions
+                window.location.reload();
+                return false;
+            }
+        }
+        
+        return true;
+        
+    } catch (error) {
+        console.error('Erreur lors de la vérification:', error);
+        sessionStorage.clear();
+        alert('⚠️ Erreur de vérification. Veuillez vous reconnecter.');
+        window.location.href = 'login.html';
+        return false;
+    }
+}
+
+// ========================================
 // DASHBOARD - AFFICHAGE INFO AGENT
 // ========================================
-function initDashboard() {
+async function initDashboard() {
     const agentName = document.getElementById('agentName');
     
     if (!agentName) return;
+    
+    // VÉRIFIER L'ACCÈS AVANT TOUT
+    const hasAccess = await verifyAgentAccess();
+    if (!hasAccess) return;
     
     const agentData = sessionStorage.getItem('agent');
     
@@ -287,6 +364,10 @@ async function initPersonnel() {
     
     if (!tableContainer) return;
     
+    // VÉRIFIER L'ACCÈS AVANT TOUT
+    const hasAccess = await verifyAgentAccess();
+    if (!hasAccess) return;
+    
     const agentData = sessionStorage.getItem('agent');
     if (!agentData) {
         window.location.href = 'login.html';
@@ -328,9 +409,9 @@ async function initPersonnel() {
         window.allAgents = agents;
         window.currentPermissionLevel = permissionLevel;
         window.currentAgentId = currentAgent.id;
-        window.currentAgentPoste = null; // Sera chargé si besoin
+        window.currentAgentPoste = null;
         
-        // Charger le poste de l'agent si Lieutenant (pour la création)
+        // Charger le poste de l'agent si Lieutenant
         if (permissionLevel === 3) {
             const agentFullData = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${currentAgent.id}`).then(r => r.json());
             window.currentAgentPoste = agentFullData.poste_affectation;
@@ -1759,21 +1840,32 @@ async function initRapports() {
     
     if (!tableContainer) return;
     
+    // VÉRIFIER L'ACCÈS AVANT TOUT
+    const hasAccess = await verifyAgentAccess();
+    if (!hasAccess) return;
+    
     try {
         // Charger les rapports d'arrestation
         const responseArrestations = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/arrestations');
         const arrestations = await responseArrestations.json();
         
-        // Charger les rapports OIS
-        const responseOIS = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/ois');
-        const ois = await responseOIS.json();
+        // Charger les rapports OIS (gérer si la route n'existe pas encore)
+        let ois = [];
+        try {
+            const responseOIS = await fetch('https://sahp.charliemoimeme.workers.dev/rapports/ois');
+            if (responseOIS.ok) {
+                ois = await responseOIS.json();
+            }
+        } catch (e) {
+            console.log('Rapports OIS pas encore disponibles');
+        }
         
         loading.style.display = 'none';
         
         // Combiner et marquer le type
         const allRapports = [
-            ...arrestations.map(r => ({ ...r, type: 'arrestation' })),
-            ...ois.map(r => ({ ...r, type: 'ois' }))
+            ...(Array.isArray(arrestations) ? arrestations : []).map(r => ({ ...r, type: 'arrestation' })),
+            ...(Array.isArray(ois) ? ois : []).map(r => ({ ...r, type: 'ois' }))
         ];
         
         // Trier par date (plus récent en premier)
@@ -2452,4 +2544,5 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
