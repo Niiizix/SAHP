@@ -715,23 +715,23 @@ body {
 
 /* Direction - Plus grands insignes */
 .table-insigne[alt*="Commissioner"] {
-    height: 35px;
+    height: 30px;
 }
 
 .table-insigne[alt*="Deputy Commissioner"] {
-    height: 26px;
-}
-
-.table-insigne[alt*="Assistant Commissioner"] {
     height: 24px;
 }
 
-.table-insigne[alt*="Chief"] {
+.table-insigne[alt*="Assistant Commissioner"] {
     height: 22px;
 }
 
+.table-insigne[alt*="Chief"] {
+    height: 18px;
+}
+
 .table-insigne[alt*="Assistant Chief"] {
-    height: 20px;
+    height: 18px;
 }
 
 .td-badge {
@@ -2183,6 +2183,7 @@ body {
     color: white;
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
+
 
 
 
