@@ -333,46 +333,42 @@ function canCreateAgent(level) {
 }
 
 function canModifyAgent(level, actorGrade, targetGrade) {
-    if (level <= 2) return false;
+    if (level > 2) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
 function canSeeCodeAcces(level) {
-    return level === 1; // Seulement Direction
+    return level === 1;
 }
 
-function canAddMedaille(level, actorGrade, targetGrade) {
-    if (level <= 1) return false;
-    return canActOnAgent(actorGrade, targetGrade);
+function canAddMedaille(level) {
+    return level === 1;
 }
 
-function canAddRecommandation(level, actorGrade, targetGrade) {
-    if (level <= 1) return false;
-    return canActOnAgent(actorGrade, targetGrade);
+function canAddRecommandation(level) {
+    return level === 1;
 }
 
 function canAddSanction(level, actorGrade, targetGrade) {
-    if (level <= 3) return false;
+    if (level > 3) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
-function canSeeSanctionsTab(level, isOwnProfile, actorGrade, targetGrade) {
-    if (level <= 3 || isOwnProfile) return false;
-    return canActOnAgent(actorGrade, targetGrade);
+function canSeeSanctionsTab(level, isOwnProfile) {
+    return level <= 3 || isOwnProfile;
 }
 
-function canSeeRecommandationsTab(level, isOwnProfile, actorGrade, targetGrade) {
-    if (level <= 3 || isOwnProfile) return false;
-    return canActOnAgent(actorGrade, targetGrade);
+function canSeeRecommandationsTab(level, isOwnProfile) {
+    return level <= 3 || isOwnProfile;
 }
 
 function canArchiveAgent(level, actorGrade, targetGrade) {
-    if (level <= 2) return false;
+    if (level > 2) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
 function canSeeArchivesSection(level) {
-    return level === 1; // Seulement Direction
+    return level === 1;
 }
 
 function canDeleteAgent(level, actorGrade, targetGrade) {
@@ -2629,6 +2625,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
