@@ -333,7 +333,7 @@ function canCreateAgent(level) {
 }
 
 function canModifyAgent(level, actorGrade, targetGrade) {
-    if (level > 2) return false;
+    if (level <= 2) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
@@ -342,32 +342,32 @@ function canSeeCodeAcces(level) {
 }
 
 function canAddMedaille(level, actorGrade, targetGrade) {
-    if (level > 1) return false;
+    if (level <= 1) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
 function canAddRecommandation(level, actorGrade, targetGrade) {
-    if (level > 1) return false;
+    if (level <= 1) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
 function canAddSanction(level, actorGrade, targetGrade) {
-    if (level > 3) return false;
+    if (level <= 3) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
 function canSeeSanctionsTab(level, isOwnProfile, actorGrade, targetGrade) {
-    if (level > 3 || isOwnProfile) return false;
+    if (level <= 3 || isOwnProfile) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
 function canSeeRecommandationsTab(level, isOwnProfile, actorGrade, targetGrade) {
-    if (level > 3 || isOwnProfile) return false;
+    if (level <= 3 || isOwnProfile) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
 function canArchiveAgent(level, actorGrade, targetGrade) {
-    if (level > 2) return false;
+    if (level <= 2) return false;
     return canActOnAgent(actorGrade, targetGrade);
 }
 
@@ -2629,6 +2629,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
