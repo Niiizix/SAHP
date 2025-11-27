@@ -126,6 +126,49 @@ function initLogin() {
 }
 
 // ========================================
+// SYSTÈME DE HIÉRARCHIE
+// ========================================
+
+const GRADE_HIERARCHY = {
+    'Commissioner': 1,
+    'Deputy Commissioner': 2,
+    'Assistant Commissioner': 3,
+    'Chief': 4,
+    'Assistant Chief': 5,
+    'Captain': 6,
+    'Lieutenant': 7,
+    'Sergent': 8,
+    'Senior Officer': 9,
+    'Field Training Officer': 10,
+    'Officer': 11,
+    'Cadet': 12
+};
+
+function getGradeHierarchyLevel(grade) {
+    return GRADE_HIERARCHY[grade] || 999;
+}
+
+function canActOnAgent(actorGrade, targetGrade) {
+    const actorLevel = getGradeHierarchyLevel(actorGrade);
+    const targetLevel = getGradeHierarchyLevel(targetGrade);
+    return actorLevel < targetLevel;
+}
+
+function canCreateAgentWithGrade(creatorGrade, newAgentGrade) {
+    const creatorLevel = getGradeHierarchyLevel(creatorGrade);
+    const newAgentLevel = getGradeHierarchyLevel(newAgentGrade);
+    return creatorLevel <= newAgentLevel;
+}
+
+function getSelectableGrades(creatorGrade) {
+    const creatorLevel = getGradeHierarchyLevel(creatorGrade);
+    return Object.keys(GRADE_HIERARCHY).filter(grade => {
+        const gradeLevel = getGradeHierarchyLevel(grade);
+        return gradeLevel >= creatorLevel;
+    });
+}
+
+// ========================================
 // VÉRIFICATION DES PERMISSIONS EN TEMPS RÉEL
 // ========================================
 
@@ -289,46 +332,52 @@ function canCreateAgent(level) {
     return level <= 3; // Direction, Captain et Lieutenant
 }
 
-function canModifyAgent(level) {
-    return level <= 2; // Direction et Captain
+function canModifyAgent(level, actorGrade, targetGrade) {
+    if (level > 2) return false;
+    return canActOnAgent(actorGrade, targetGrade);
 }
 
 function canSeeCodeAcces(level) {
     return level === 1; // Seulement Direction
 }
 
-function canAddMedaille(level) {
-    return level === 1; // Seulement Direction
+function canAddMedaille(level, actorGrade, targetGrade) {
+    if (level > 1) return false;
+    return canActOnAgent(actorGrade, targetGrade);
 }
 
-function canAddRecommandation(level) {
-    return level === 1; // Seulement Direction
+function canAddRecommandation(level, actorGrade, targetGrade) {
+    if (level > 1) return false;
+    return canActOnAgent(actorGrade, targetGrade);
 }
 
-function canAddSanction(level) {
-    return level <= 3; // Direction, Captain, Lieutenant
+function canAddSanction(level, actorGrade, targetGrade) {
+    if (level > 3) return false;
+    return canActOnAgent(actorGrade, targetGrade);
 }
 
-function canSeeSanctionsTab(level, isOwnProfile) {
-    // Niveau 1-3 voient toujours, niveau 4 seulement leur propre profil
-    return level <= 3 || isOwnProfile;
+function canSeeSanctionsTab(level, isOwnProfile, actorGrade, targetGrade) {
+    if (level > 3 || isOwnProfile) return false;
+    return canActOnAgent(actorGrade, targetGrade);
 }
 
-function canSeeRecommandationsTab(level, isOwnProfile) {
-    // Niveau 1-3 voient toujours, niveau 4 seulement leur propre profil
-    return level <= 3 || isOwnProfile;
+function canSeeRecommandationsTab(level, isOwnProfile, actorGrade, targetGrade) {
+    if (level > 3 || isOwnProfile) return false;
+    return canActOnAgent(actorGrade, targetGrade);
 }
 
-function canArchiveAgent(level) {
-    return level <= 2; // Direction et Captain
+function canArchiveAgent(level, actorGrade, targetGrade) {
+    if (level > 2) return false;
+    return canActOnAgent(actorGrade, targetGrade);
 }
 
 function canSeeArchivesSection(level) {
     return level === 1; // Seulement Direction
 }
 
-function canDeleteAgent(level) {
-    return level === 1; // Seulement Direction
+function canDeleteAgent(level, actorGrade, targetGrade) {
+    if (level !== 1) return false;
+    return canActOnAgent(actorGrade, targetGrade);
 }
 
 // ========================================
@@ -690,7 +739,7 @@ function formatDate(dateString) {
     return formatted;
 }
 
-function displayAgentModal(agent) {
+async function displayAgentModal(agent) {
     let modal = document.getElementById('agentModal');
     
     if (!modal) {
@@ -705,13 +754,17 @@ function displayAgentModal(agent) {
     
     const dateEntree = agent.date_entree ? formatDate(agent.date_entree) : 'Non renseignée';
     
+    const agentData = JSON.parse(sessionStorage.getItem('agent'));
+    const currentAgentGrade = agentData.grade;
     const permissionLevel = window.currentPermissionLevel || 4;
     const currentAgentId = window.currentAgentId;
     const isOwnProfile = agent.id === currentAgentId;
     
-    const showEditBtn = canModifyAgent(permissionLevel);
-    const showArchiveBtn = canArchiveAgent(permissionLevel);
-    const showDeleteBtn = canDeleteAgent(permissionLevel) && agent.est_archive;
+    // VÉRIFICATIONS HIÉRARCHIQUES
+    const canModify = canModifyAgent(permissionLevel, currentAgentGrade, agent.grade);
+    const canArchive = canArchiveAgent(permissionLevel, currentAgentGrade, agent.grade);
+    const canDelete = canDeleteAgent(permissionLevel, currentAgentGrade, agent.grade) && agent.est_archive;
+    const canAddSanctions = canAddSanction(permissionLevel, currentAgentGrade, agent.grade);
     
     const showSanctionsTab = canSeeSanctionsTab(permissionLevel, isOwnProfile);
     const showRecommandationsTab = canSeeRecommandationsTab(permissionLevel, isOwnProfile);
@@ -719,13 +772,13 @@ function displayAgentModal(agent) {
     // Boutons d'action
     let buttonsHTML = '';
     
-    // Bouton modifier
-    if (showEditBtn) {
+    // Bouton modifier (seulement si hiérarchiquement autorisé)
+    if (canModify) {
         buttonsHTML += `<button class="edit-agent-btn" onclick="openEditAgentModal(${agent.id})" title="Modifier l'agent">✏️</button>`;
     }
     
-    // Bouton archiver/déployer
-    if (showArchiveBtn) {
+    // Bouton archiver/déployer (seulement si hiérarchiquement autorisé)
+    if (canArchive) {
         if (agent.est_archive) {
             buttonsHTML += `<button class="deploy-agent-btn" onclick="deployAgent(${agent.id})" title="Déployer l'agent">🔄</button>`;
         } else {
@@ -733,8 +786,8 @@ function displayAgentModal(agent) {
         }
     }
     
-    // Bouton supprimer (seulement si archivé et Direction)
-    if (showDeleteBtn) {
+    // Bouton supprimer (seulement si archivé ET hiérarchiquement autorisé)
+    if (canDelete) {
         buttonsHTML += `<button class="delete-agent-btn" onclick="deleteAgent(${agent.id})" title="Supprimer définitivement">🗑️</button>`;
     }
     
@@ -743,7 +796,7 @@ function displayAgentModal(agent) {
     const insigneHTML = insigneUrl ? `<img src="${insigneUrl}" alt="Insigne ${agent.grade}" class="grade-insigne">` : '';
 
     // Service Strips
-     let serviceStripHTML = '';
+    let serviceStripHTML = '';
     if (agent.date_entree) {
         const serviceStripData = getServiceStripData(agent.date_entree);
         if (serviceStripData.url) {
@@ -834,7 +887,7 @@ function displayAgentModal(agent) {
                 
                 ${showSanctionsTab ? `
                 <div id="sanctions-tab" class="tab-content">
-                    ${canAddSanction(permissionLevel) ? `<button class="add-item-btn" onclick="openAddSanctionModal(${agent.id})">+ Ajouter une Sanction</button>` : ''}
+                    ${canAddSanctions ? `<button class="add-item-btn" onclick="openAddSanctionModal(${agent.id})">+ Ajouter une Sanction</button>` : ''}
                     <div id="sanctions-list" class="items-list"></div>
                 </div>
                 ` : ''}
@@ -1451,9 +1504,14 @@ const GRADES_LIST = [
 const POSTES_LIST = ['La Mesa', 'Grapeseed', 'Chumash'];
 
 function openAddAgentModal() {
+    const agentData = JSON.parse(sessionStorage.getItem('agent'));
+    const currentAgentGrade = agentData.grade;
     const permissionLevel = window.currentPermissionLevel || 4;
     const currentPoste = window.currentAgentPoste;
     const isLieutenant = permissionLevel === 3;
+    
+    // Récupérer les grades sélectionnables
+    const selectableGrades = getSelectableGrades(currentAgentGrade);
     
     const today = new Date().toISOString().split('T')[0];
     
@@ -1492,7 +1550,7 @@ function openAddAgentModal() {
                         <label>Grade *</label>
                         <select id="agent_grade" required>
                             <option value="">-- Sélectionner --</option>
-                            ${GRADES_LIST.map(g => `<option value="${g}">${g}</option>`).join('')}
+                            ${selectableGrades.map(g => `<option value="${g}">${g}</option>`).join('')}
                         </select>
                     </div>
                     <div class="form-group">
@@ -1539,6 +1597,14 @@ function openAddAgentModal() {
     document.getElementById('addAgentForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const selectedGrade = document.getElementById('agent_grade').value;
+        
+        // VÉRIFICATION HIÉRARCHIQUE AVANT CRÉATION
+        if (!canCreateAgentWithGrade(currentAgentGrade, selectedGrade)) {
+            alert('❌ Vous ne pouvez pas créer un agent avec un grade supérieur au vôtre.');
+            return;
+        }
+        
         const agentData = {
             prenom: document.getElementById('agent_prenom').value,
             nom: document.getElementById('agent_nom').value,
@@ -1546,7 +1612,7 @@ function openAddAgentModal() {
             matricule: document.getElementById('agent_matricule').value,
             badge: document.getElementById('agent_badge').value,
             code_acces: document.getElementById('agent_code_acces').value,
-            grade: document.getElementById('agent_grade').value,
+            grade: selectedGrade,
             poste_affectation: isLieutenant ? currentPoste : document.getElementById('agent_poste').value,
             date_entree: convertToDisplayDate(document.getElementById('agent_date_entree').value),
             specialisation_1: document.getElementById('agent_specialisation_1').value,
@@ -1590,8 +1656,19 @@ async function openEditAgentModal(agentId) {
         const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentId}`);
         const agent = await response.json();
         
+        const agentData = JSON.parse(sessionStorage.getItem('agent'));
+        const currentAgentGrade = agentData.grade;
         const permissionLevel = window.currentPermissionLevel || 4;
         const showCodeAcces = canSeeCodeAcces(permissionLevel);
+        
+        // Vérifier si on peut modifier cet agent
+        if (!canModifyAgent(permissionLevel, currentAgentGrade, agent.grade)) {
+            alert('❌ Vous ne pouvez pas modifier un agent de grade supérieur ou égal au vôtre.');
+            return;
+        }
+        
+        // Récupérer les grades sélectionnables
+        const selectableGrades = getSelectableGrades(currentAgentGrade);
         
         const modal = document.createElement('div');
         modal.className = 'agent-form-modal active';
@@ -1629,7 +1706,7 @@ async function openEditAgentModal(agentId) {
                         <div class="form-group">
                             <label>Grade *</label>
                             <select id="edit_grade" required>
-                                ${GRADES_LIST.map(g => `<option value="${g}" ${g === agent.grade ? 'selected' : ''}>${g}</option>`).join('')}
+                                ${selectableGrades.map(g => `<option value="${g}" ${g === agent.grade ? 'selected' : ''}>${g}</option>`).join('')}
                             </select>
                         </div>
                         <div class="form-group">
@@ -1672,6 +1749,14 @@ async function openEditAgentModal(agentId) {
         document.getElementById('editAgentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const selectedGrade = document.getElementById('edit_grade').value;
+            
+            // VÉRIFICATION HIÉRARCHIQUE AVANT MODIFICATION
+            if (!canCreateAgentWithGrade(currentAgentGrade, selectedGrade)) {
+                alert('❌ Vous ne pouvez pas attribuer un grade supérieur au vôtre.');
+                return;
+            }
+            
             const agentData = {
                 id: agentId,
                 prenom: document.getElementById('edit_prenom').value,
@@ -1680,7 +1765,7 @@ async function openEditAgentModal(agentId) {
                 matricule: document.getElementById('edit_matricule').value,
                 badge: document.getElementById('edit_badge').value,
                 code_acces: showCodeAcces ? document.getElementById('edit_code_acces').value : agent.code_acces,
-                grade: document.getElementById('edit_grade').value,
+                grade: selectedGrade,
                 poste_affectation: document.getElementById('edit_poste').value,
                 date_entree: convertToDisplayDate(document.getElementById('edit_date_entree').value),
                 specialisation_1: document.getElementById('edit_specialisation_1').value,
@@ -2544,5 +2629,6 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
