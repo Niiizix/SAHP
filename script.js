@@ -125,6 +125,16 @@ function initLogin() {
     });
 }
 
+function logout() {
+    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+        // Effacer toutes les données de session
+        sessionStorage.clear();
+        
+        // Rediriger vers la page d'accueil
+        window.location.href = 'index.html';
+    }
+}
+
 // ========================================
 // SYSTÈME DE HIÉRARCHIE
 // ========================================
@@ -2625,6 +2635,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
