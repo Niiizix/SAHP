@@ -2184,6 +2184,65 @@ body {
     font-size: clamp(0.75rem, 0.9vw + 0.3rem, 0.85rem);
 }
 
+/* ========================================
+   BOUTON DÉCONNEXION SIDEBAR
+   À AJOUTER dans intra-style.css
+   ======================================== */
+
+.sidebar-footer {
+    margin-top: auto; /* Pousse le bouton en bas */
+    padding: 1rem;
+    border-top: 1px solid #333;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar:hover .sidebar-footer {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.logout-btn {
+    width: 100%;
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    padding: 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: clamp(0.85rem, 0.9vw + 0.4rem, 0.95rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.logout-icon {
+    font-size: 1.2rem;
+}
+
+.logout-text {
+    display: inline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar-footer {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+
 
 
 
