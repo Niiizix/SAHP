@@ -136,6 +136,55 @@ function logout() {
 }
 
 // ========================================
+// SYSTÈME DE THÈME CLAIR/SOMBRE
+// À AJOUTER dans script.js
+// ========================================
+
+// Initialiser le thème au chargement
+function initTheme() {
+    // Récupérer le thème sauvegardé (par défaut: clair)
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+
+// Toggle entre clair et sombre
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    // Appliquer le nouveau thème
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    // Mettre à jour l'icône avec animation
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+        btn.classList.add('rotating');
+        setTimeout(() => btn.classList.remove('rotating'), 500);
+    }
+    
+    updateThemeIcon(newTheme);
+}
+
+// Mettre à jour l'icône du bouton
+function updateThemeIcon(theme) {
+    const icon = document.querySelector('.theme-icon');
+    if (icon) {
+        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+}
+
+// Fonction de déconnexion
+function logout() {
+    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+        sessionStorage.clear();
+        // Ne pas effacer localStorage pour garder la préférence de thème
+        window.location.href = 'index.html';
+    }
+}
+
+// ========================================
 // SYSTÈME DE HIÉRARCHIE
 // ========================================
 
@@ -2635,6 +2684,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
