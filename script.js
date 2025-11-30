@@ -2648,6 +2648,9 @@ function closeRapportFormModal() {
 // ========================================
 
 window.addEventListener('DOMContentLoaded', function() {
+    // Initialiser le thème au chargement de la page
+    initTheme();
+    
     // Initialiser la galerie si on est sur medias.html
     loadGallery();
     
@@ -2684,6 +2687,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
