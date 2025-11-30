@@ -102,10 +102,15 @@
             </ul>
         </nav>
         <div class="sidebar-footer">
-            <button class="logout-btn" onclick="logout()">
-                <span class="logout-icon">🚪</span>
-                <span class="logout-text">Déconnexion</span>
-            </button>
+            <div class="footer-buttons">
+                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggle" title="Changer de thème">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button class="logout-btn" onclick="logout()" title="Déconnexion">
+                    <span class="logout-icon">🚪</span>
+                    <span class="logout-text">Déconnexion</span>
+                </button>
+            </div>
         </div>
     </aside>
 
@@ -137,5 +142,6 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
