@@ -2534,4 +2534,5 @@ window.addEventListener('DOMContentLoaded', function() {
             closeLightbox();
         }
     });
-};
+});
+
