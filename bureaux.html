@@ -8,51 +8,9 @@
     <link rel="icon" type="image/x-icon" href="imgs/ICONE.ico">
 </head>
 <body>
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a href="index.html">
-                <div class="sidebar-logo">
-                    <img src="imgs/LOGO.png" alt="SAHP Badge">
-                </div>
-                <div class="sidebar-title">
-                    <h1>SAHP</h1>
-                </div>
-            </a>
-        </div>
-        
-        <nav class="nav">
-            <ul>
-                <li><a href="index.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Accueil</span>
-                </a></li>
-                <li><a href="bureaux.html" class="active">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Bureaux Régionaux</span>
-                </a></li>
-                <li><a href="plaintes.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Plaintes</span>
-                </a></li>
-                <li><a href="recrutements.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Nous Rejoindre</span>
-                </a></li>
-                <li><a href="medias.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Galerie Média</span>
-                </a></li>
-            </ul>
-        </nav>
-    </aside>
-
+    <div id="sidebar-container"></div>
     <main class="main-content">
-        <header class="hero-header bureaux-bg">
-            <a href="login.html" class="profile-icon">
-                <img src="imgs/profile.png" alt="Profil">
-            </a>
-        </header>
-
+        <div id="hero-container"></div>
         <!-- Grapeseed -->
         <section class="poste-section grapeseed-section">
             <h2>Grapeseed Area Office</h2>
@@ -89,7 +47,6 @@
                 </div>
             </div>
         </section>
-
         <!-- Chumash -->
         <section class="poste-section chumash-section">
             <h2>Chumash Area Office</h2>
@@ -126,7 +83,6 @@
                 </div>
             </div>
         </section>
-
         <!-- Marina -->
         <section class="poste-section marina-section">
             <h2>West Los Santos Area Office</h2>
@@ -147,7 +103,6 @@
                 </div>
             </div>
         </section>
-
         <!-- Mesa -->
         <section class="poste-section mesa-section">
             <h2>Central Los Santos Area Office</h2>
@@ -168,10 +123,15 @@
                 </div>
             </div>
         </section>
-
-        <footer class="footer">
-            <p>&copy; MST - San Andreas Highway Patrol. Tous droits réservés.</p>
-        </footer>
+        <div id="footer-container"></div>
     </main>
+    <script src="components.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('sidebar-container').innerHTML = getPublicSidebar();
+        document.getElementById('hero-container').innerHTML = getPublicHeroHeader('bureaux-bg');
+        document.getElementById('footer-container').innerHTML = getFooter();
+        setActiveNavLink();
+    </script>
 </body>
 </html>
