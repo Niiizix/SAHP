@@ -1559,6 +1559,7 @@ function openAddAgentModal() {
         alert('Erreur lors de la création');
     }
 });
+}
 
 function closeAgentFormModal() {
     const modal = document.querySelector('.agent-form-modal');
@@ -2535,4 +2536,5 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
