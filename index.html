@@ -8,51 +8,7 @@
     <link rel="icon" type="image/x-icon" href="imgs/ICONE.ico">
 </head>
 <body>
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a href="index.html">
-                <div class="sidebar-logo">
-                    <img src="imgs/LOGO.png" alt="SAHP Badge">
-                </div>
-                <div class="sidebar-title">
-                    <h1>SAHP</h1>
-                </div>
-            </a>
-        </div>
-        
-        <nav class="nav">
-            <ul>
-                <li><a href="index.html" class="active">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Accueil</span>
-                </a></li>
-                <li><a href="bureaux.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Bureaux Régionaux</span>
-                </a></li>
-                <li><a href="plaintes.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Plaintes</span>
-                </a></li>
-                <li><a href="recrutements.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Nous Rejoindre</span>
-                </a></li>
-                <li><a href="medias.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Galerie Média</span>
-                </a></li>
-            </ul>
-        </nav>
-    </aside>
-
     <main class="main-content">
-        <header class="hero-header index-bg">
-            <a href="login.html" class="profile-icon">
-                <img src="imgs/profile.png" alt="Profil">
-            </a>
-        </header>
-
         <section class="content-card">
             <h2>San Andreas Highway Patrol</h2>
             <p>[Texte ChatGPT A remplacer par la Direction]</p>
@@ -81,10 +37,13 @@
                 <img src="imgs/DIRECTION.png" alt="Description de l'image">
             </div>
         </section>
-
-        <footer class="footer">
-            <p>&copy; MST - San Andreas Highway Patrol. Tous droits réservés.</p>
-        </footer>
     </main>
+    <script src="components.js"></script>
+    <script src="script.js"></script>
+    <script>
+        loadPublicSidebar();
+        loadPublicHero('index-bg');
+        loadFooter();
+    </script>
 </body>
 </html>
