@@ -1306,7 +1306,7 @@ async function loadAgentSanctions(agentId) {
                     <div class="item-description">${s.explication}</div>
                     <div class="item-meta">
                         <span>Ajoutée par: ${s.ajoutee_par}</span>
-                        <span>Le: ${DateFormatter.toDateTime(s.date_ajout))}</span>
+                        <span>Le: ${DateFormatter.toDateTime(s.date_ajout)}</span>
                     </div>
                 </div>
                 ${canDelete ? `<button class="delete-btn" onclick="deleteAgentSanction(${s.id}, ${agentId})">🗑️</button>` : ''}
@@ -2535,6 +2535,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
