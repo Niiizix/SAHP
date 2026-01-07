@@ -41,9 +41,11 @@
     <script src="components.js"></script>
     <script src="script.js"></script>
     <script>
-        loadPublicSidebar();
-        loadPublicHero('index-bg');
-        loadFooter();
+        document.getElementById('sidebar-container').innerHTML = getPublicSidebar();
+        document.getElementById('hero-container').innerHTML = getPublicHeroHeader('index-bg');
+        document.getElementById('footer-container').innerHTML = getFooter();
+        setActiveNavLink();
     </script>
 </body>
 </html>
+
