@@ -625,7 +625,7 @@ function displayPersonnel(agents) {
             
             html += `
                 <tr class="agent-row" data-agent-id="${agent.id}">
-                    <td class="td-date">${formatDate(agent.date_entree)}</td>
+                    <td class="td-date">${DateFormatter.toDisplay(agent.date_entree)}</td>
                     <td class="td-grade">${agent.grade}</td>
                     <td class="td-insigne">${insigneHTML}</td>
                     <td class="td-badge">${agent.badge}</td>
@@ -683,7 +683,7 @@ function displayPersonnel(agents) {
             
             html += `
                 <tr class="agent-row archived-row" data-agent-id="${agent.id}">
-                    <td class="td-date">${formatDate(agent.date_entree)}</td>
+                    <td class="td-date">${DateFormatter.toDisplay(agent.date_entree)}</td>
                     <td class="td-grade">${agent.grade}</td>
                     <td class="td-insigne">${insigneHTML}</td>
                     <td class="td-badge">${agent.badge}</td>
@@ -756,44 +756,6 @@ async function openAgentModal(agentId) {
 
 const TIMEZONE = 'Europe/Brussels';
 
-function convertToLocalTime(dateString) {
-    if (!dateString) return null;
-    
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return null;
-    
-    return date;
-}
-
-function formatDate(dateString) {
-    if (!dateString) return 'Non renseignée';
-    
-    // Si c'est déjà au format DD/MM/YYYY
-    if (dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-        return dateString;
-    }
-    
-    // Si c'est au format YYYY-MM-DD (format SQL)
-    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        const [year, month, day] = dateString.split('-');
-        return `${day}/${month}/${year}`;
-    }
-    
-    // Essayer de parser avec Date en tenant compte du fuseau horaire
-    const date = convertToLocalTime(dateString);
-    if (!date) return 'Format invalide';
-    
-    const options = {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        timeZone: TIMEZONE
-    };
-    
-    const formatted = new Intl.DateTimeFormat('fr-BE', options).format(date);
-    return formatted;
-}
-
 async function displayAgentModal(agent) {
     let modal = document.getElementById('agentModal');
     
@@ -807,7 +769,7 @@ async function displayAgentModal(agent) {
     const photoUrl = agent.photo_url || 'imgs/default-agents.png';
     const photoHTML = `<img src="${photoUrl}" alt="Photo ${agent.prenom} ${agent.nom}">`;
     
-    const dateEntree = agent.date_entree ? formatDate(agent.date_entree) : 'Non renseignée';
+    const dateEntree = agent.date_entree ? DateFormatter.toDisplay(agent.date_entree) : 'Non renseignée';
     
     const agentData = JSON.parse(sessionStorage.getItem('agent'));
     const currentAgentGrade = agentData.grade;
@@ -875,7 +837,7 @@ async function displayAgentModal(agent) {
                     <span class="grade-text">${agent.grade}</span>
                 </div>
                 <div class="agent-fullname">${agent.prenom} ${agent.nom}</div>
-                ${agent.est_archive ? `<div class="agent-archived-badge">ARCHIVÉ LE ${formatDate(agent.date_archivage)}</div>` : ''}
+                ${agent.est_archive ? `<div class="agent-archived-badge">ARCHIVÉ LE ${DateFormatter.toDisplay(agent.date_archivage)}</div>` : ''}
                 
                 <div class="agent-info-list">
                     <div class="agent-info-item">
@@ -1140,7 +1102,7 @@ async function loadAgentMedailles(agentId) {
                     <div class="item-description">${m.description_personnalisee || m.description || ''}</div>
                     <div class="item-meta">
                         <span>Attribuée par: ${m.attribue_par}</span>
-                        <span>Le: ${formatDateTime(m.date_attribution)}</span>
+                        <span>Le: ${DateFormatter.toDateTime(m.date_attribution)}</span>
                     </div>
                 </div>
                 ${canDelete ? `<button class="delete-btn" onclick="deleteAgentMedaille(${m.id}, ${agentId})">🗑️</button>` : ''}
@@ -1177,7 +1139,7 @@ async function openAddMedailleModal(agentId) {
                         <textarea id="medailleDescription" required placeholder="Décrivez pourquoi cette médaille est attribuée..." style="min-height: 100px;"></textarea>
                     </div>
                     <div class="form-buttons">
-                        <button type="button" class="form-btn cancel" onclick="closeFormModal()">Annuler</button>
+                        <button type="button" class="form-btn cancel" onclick="ModalManager.close('.form-modal')">Annuler</button>
                         <button type="submit" class="form-btn submit">Valider</button>
                     </div>
                 </form>
@@ -1214,7 +1176,7 @@ async function openAddMedailleModal(agentId) {
             const data = await response.json();
             
             if (data.success) {
-                closeFormModal();
+                ModalManager.close('.form-modal');
                 loadAgentMedailles(agentId);
             } else {
                 alert('Erreur: ' + data.error);
@@ -1228,24 +1190,7 @@ async function openAddMedailleModal(agentId) {
 }
 
 async function deleteAgentMedaille(medailleId, agentId) {
-    if (!confirm('Supprimer cette médaille ?')) return;
-    
-    try {
-        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/medaille/${medailleId}`, {
-            method: 'DELETE'
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            loadAgentMedailles(agentId);
-        } else {
-            alert('Erreur: ' + data.error);
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        alert('Erreur lors de la suppression');
-    }
+    await APIManager.deleteItem('medaille', medailleId, agentId, loadAgentMedailles);
 }
 
 // ========================================
@@ -1272,7 +1217,7 @@ async function loadAgentRecommandations(agentId) {
                     <div class="item-description">${r.texte}</div>
                     <div class="item-meta">
                         <span>Ajoutée par: ${r.ajoutee_par}</span>
-                        <span>Le: ${formatDateTime(r.date_ajout)}</span>
+                        <span>Le: ${DateFormatter.toDateTime(r.date_ajout)}</span>
                     </div>
                 </div>
                 ${canDelete ? `<button class="delete-btn" onclick="deleteAgentRecommandation(${r.id}, ${agentId})">🗑️</button>` : ''}
@@ -1296,7 +1241,7 @@ async function openAddRecommandationModal(agentId) {
                     <textarea id="recommandationTexte" required placeholder="Entrez la recommandation..."></textarea>
                 </div>
                 <div class="form-buttons">
-                    <button type="button" class="form-btn cancel" onclick="closeFormModal()">Annuler</button>
+                    <button type="button" class="form-btn cancel" onclick="ModalManager.close('.form-modal')">Annuler</button>
                     <button type="submit" class="form-btn submit">Valider</button>
                 </div>
             </form>
@@ -1324,7 +1269,7 @@ async function openAddRecommandationModal(agentId) {
         const data = await response.json();
         
         if (data.success) {
-            closeFormModal();
+            ModalManager.close('.form-modal');
             loadAgentRecommandations(agentId);
         } else {
             alert('Erreur: ' + data.error);
@@ -1333,24 +1278,7 @@ async function openAddRecommandationModal(agentId) {
 }
 
 async function deleteAgentRecommandation(recommandationId, agentId) {
-    if (!confirm('Supprimer cette recommandation ?')) return;
-    
-    try {
-        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/recommandation/${recommandationId}`, {
-            method: 'DELETE'
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            loadAgentRecommandations(agentId);
-        } else {
-            alert('Erreur: ' + data.error);
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        alert('Erreur lors de la suppression');
-    }
+    await APIManager.deleteItem('recommandation', recommandationId, agentId, loadAgentRecommandations);
 }
 
 // ========================================
@@ -1378,7 +1306,7 @@ async function loadAgentSanctions(agentId) {
                     <div class="item-description">${s.explication}</div>
                     <div class="item-meta">
                         <span>Ajoutée par: ${s.ajoutee_par}</span>
-                        <span>Le: ${formatDateTime(s.date_ajout)}</span>
+                        <span>Le: ${DateFormatter.toDateTime(s.date_ajout))}</span>
                     </div>
                 </div>
                 ${canDelete ? `<button class="delete-btn" onclick="deleteAgentSanction(${s.id}, ${agentId})">🗑️</button>` : ''}
@@ -1413,7 +1341,7 @@ async function openAddSanctionModal(agentId) {
                         <textarea id="sanctionExplication" required placeholder="Expliquez la raison de la sanction..."></textarea>
                     </div>
                     <div class="form-buttons">
-                        <button type="button" class="form-btn cancel" onclick="closeFormModal()">Annuler</button>
+                        <button type="button" class="form-btn cancel" onclick="ModalManager.close('.form-modal')">Annuler</button>
                         <button type="submit" class="form-btn submit">Valider</button>
                     </div>
                 </form>
@@ -1443,7 +1371,7 @@ async function openAddSanctionModal(agentId) {
             const data = await response.json();
             
             if (data.success) {
-                closeFormModal();
+                ModalManager.close('.form-modal');
                 loadAgentSanctions(agentId);
             } else {
                 alert('Erreur: ' + data.error);
@@ -1457,89 +1385,12 @@ async function openAddSanctionModal(agentId) {
 }
 
 async function deleteAgentSanction(sanctionId, agentId) {
-    if (!confirm('Supprimer cette sanction ?')) return;
-    
-    try {
-        const response = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/sanction/${sanctionId}`, {
-            method: 'DELETE'
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            loadAgentSanctions(agentId);
-        } else {
-            alert('Erreur: ' + data.error);
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        alert('Erreur lors de la suppression');
-    }
-}
-
-// ========================================
-// UTILITAIRES
-// ========================================
-
-function closeFormModal() {
-    const modal = document.querySelector('.form-modal');
-    if (modal) {
-        modal.remove();
-    }
-}
-
-function formatDateTime(dateString) {
-    if (!dateString) return 'Date inconnue';
-    
-    const date = convertToLocalTime(dateString);
-    if (!date) return 'Date invalide';
-    
-    const options = {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: TIMEZONE,
-        hour12: false
-    };
-    
-    const formatted = new Intl.DateTimeFormat('fr-BE', options).format(date);
-    return formatted.replace(',', ' à');
+    await APIManager.deleteItem('sanction', sanctionId, agentId, loadAgentSanctions);
 }
 
 // ========================================
 // GESTION AGENTS (CRÉER / MODIFIER)
 // ========================================
-
-function convertToInputDate(dateString) {
-    if (!dateString) return '';
-    
-    // Si déjà au format YYYY-MM-DD
-    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        return dateString;
-    }
-    
-    // Si au format DD/MM/YYYY
-    if (dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-        const [day, month, year] = dateString.split('/');
-        return `${year}-${month}-${day}`;
-    }
-    
-    return '';
-}
-
-function convertToDisplayDate(dateString) {
-    if (!dateString) return '';
-    
-    // Si au format YYYY-MM-DD (input date)
-    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        const [year, month, day] = dateString.split('-');
-        return `${day}/${month}/${year}`;
-    }
-    
-    return dateString;
-}
 
 const GRADES_LIST = [
     'Commissioner',
@@ -1669,7 +1520,7 @@ function openAddAgentModal() {
             code_acces: document.getElementById('agent_code_acces').value,
             grade: selectedGrade,
             poste_affectation: isLieutenant ? currentPoste : document.getElementById('agent_poste').value,
-            date_entree: convertToDisplayDate(document.getElementById('agent_date_entree').value),
+            date_entree: DateFormatter.toDisplay(document.getElementById('agent_date_entree').value),
             specialisation_1: document.getElementById('agent_specialisation_1').value,
             specialisation_2: document.getElementById('agent_specialisation_2').value,
             qualification_1: document.getElementById('agent_qualification_1').value,
@@ -1677,27 +1528,37 @@ function openAddAgentModal() {
         };
         
         try {
-            const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(agentData)
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                closeAgentFormModal();
-                alert('Agent créé avec succès !');
-                initPersonnel();
-            } else {
-                alert('Erreur: ' + data.error);
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-            alert('Erreur lors de la création');
-        }
-    });
-}
+        Validator.validate(agentData, {
+            prenom: { required: true, label: 'Prénom' },
+            nom: { required: true, label: 'Nom' },
+            numero_telephone: { required: true, label: 'Numéro de téléphone' },
+            matricule: { required: true, label: 'Matricule' },
+            badge: { required: true, label: 'Badge' },
+            code_acces: { required: true, minLength: 4, label: 'Code d\'accès' },
+            grade: { required: true, label: 'Grade' },
+            poste_affectation: { required: true, label: 'Poste d\'affectation' },
+            date_entree: { required: true, label: 'Date d\'entrée' }
+        });
+    } catch (error) {
+        alert('⚠️ Erreur de validation:\n' + error.message);
+        return;
+    }
+    
+    try {
+        await LoadingManager.wrap(
+            APIManager.post('/agent/create', agentData),
+            'Création de l\'agent...'
+        );
+        
+        closeAgentFormModal();
+        alert('Agent créé avec succès !');
+        initPersonnel();
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la création');
+    }
+});
 
 function closeAgentFormModal() {
     const modal = document.querySelector('.agent-form-modal');
@@ -1772,7 +1633,7 @@ async function openEditAgentModal(agentId) {
                         </div>
                         <div class="form-group">
                             <label>Date d'entrée *</label>
-                            <input type="date" id="edit_date_entree" value="${convertToInputDate(agent.date_entree)}" required>
+                            <input type="date" id="edit_date_entree" value="${DateFormatter.toInput(agent.date_entree)}" required>
                         </div>
                         <div class="form-group full-width">
                             <label>Spécialisation 1</label>
@@ -1822,7 +1683,7 @@ async function openEditAgentModal(agentId) {
                 code_acces: showCodeAcces ? document.getElementById('edit_code_acces').value : agent.code_acces,
                 grade: selectedGrade,
                 poste_affectation: document.getElementById('edit_poste').value,
-                date_entree: convertToDisplayDate(document.getElementById('edit_date_entree').value),
+                date_entree: DateFormatter.toDisplay(document.getElementById('edit_date_entree').value),
                 specialisation_1: document.getElementById('edit_specialisation_1').value,
                 specialisation_2: document.getElementById('edit_specialisation_2').value,
                 qualification_1: document.getElementById('edit_qualification_1').value,
@@ -2096,7 +1957,7 @@ function displayRapports(rapports) {
                     <td>${rapport.agent_nom}</td>
                     <td>${rapport.agent_prenom}</td>
                     <td>${rapport.agent_badge}</td>
-                    <td>${formatDateTime(rapport.date_rapport)}</td>
+                    <td>${DateFormatter.toDateTime(rapport.date_rapport)}</td>
                     <td><span class="statut-badge ${statutClass}">${rapport.statut}</span></td>
                 </tr>
             `;
@@ -2471,76 +2332,63 @@ function handleMugshotUpload(event, position) {
 // ========================================
 
 async function submitRapportArrestation(agentData) {
-    const submitBtn = document.querySelector('.form-btn.submit');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Envoi en cours...';
-    
     try {
-        // 1. Gérer le citoyen
-        let citoyenId;
-        
-        if (currentCitoyen) {
-            // Citoyen existe
-            const memeApparence = document.querySelector('input[name="meme_apparence"]:checked')?.value === 'oui';
-            
-            if (!memeApparence) {
-                // Upload nouveaux mugshots ET mettre à jour les infos
-                const mugshots = await uploadMugshots();
-                await updateCitoyen(currentCitoyen.id, mugshots);
-            } else {
-                // Juste mettre à jour les infos (adresse, caractéristiques)
-                await updateCitoyen(currentCitoyen.id, null);
-            }
-            
-            citoyenId = currentCitoyen.id;
-        } else {
-            // Nouveau citoyen
-            const mugshots = await uploadMugshots();
-            citoyenId = await createCitoyen(mugshots);
-        }
-        
-        // 2. Créer le rapport
-        const rapportData = {
-            agent_id: agentData.id,
-            agent_nom: agentData.nom,
-            agent_prenom: agentData.prenom,
-            agent_badge: agentData.badge,
-            citoyen_id: citoyenId,
-            heure_lecture_droits: document.getElementById('heure_droits').value,
-            contexte_interpellation: document.getElementById('contexte').value,
-            faits_retenus: document.getElementById('faits_retenus').value,
-            autres_informations: document.getElementById('autres_infos').value
-        };
-        
-        // Récupérer agent_poste et agent_grade
-        const agentFullData = await fetch(`https://sahp.charliemoimeme.workers.dev/agent/${agentData.id}`).then(r => r.json());
-        rapportData.agent_poste = agentFullData.poste_affectation;
-        rapportData.agent_grade = agentFullData.grade;
-        
-        const response = await fetch('https://sahp.charliemoimeme.workers.dev/rapport/arrestation/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(rapportData)
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            closeRapportFormModal();
-            alert('✅ Rapport d\'arrestation créé avec succès !');
-            if (typeof initRapports === 'function') initRapports();
-        } else {
-            throw new Error(data.error);
-        }
+        await LoadingManager.wrap(
+            (async () => {
+                // 1. Gérer le citoyen
+                let citoyenId;
+                
+                if (currentCitoyen) {
+                    const memeApparence = document.querySelector('input[name="meme_apparence"]:checked')?.value === 'oui';
+                    
+                    if (!memeApparence) {
+                        const mugshots = await uploadMugshots();
+                        await updateCitoyen(currentCitoyen.id, mugshots);
+                    } else {
+                        await updateCitoyen(currentCitoyen.id, null);
+                    }
+                    
+                    citoyenId = currentCitoyen.id;
+                } else {
+                    const mugshots = await uploadMugshots();
+                    citoyenId = await createCitoyen(mugshots);
+                }
+                
+                // 2. Créer le rapport
+                const rapportData = {
+                    agent_id: agentData.id,
+                    agent_nom: agentData.nom,
+                    agent_prenom: agentData.prenom,
+                    agent_badge: agentData.badge,
+                    citoyen_id: citoyenId,
+                    heure_lecture_droits: document.getElementById('heure_droits').value,
+                    contexte_interpellation: document.getElementById('contexte').value,
+                    faits_retenus: document.getElementById('faits_retenus').value,
+                    autres_informations: document.getElementById('autres_infos').value
+                };
+                
+                const agentFullData = await APIManager.get(`/agent/${agentData.id}`);
+                rapportData.agent_poste = agentFullData.poste_affectation;
+                rapportData.agent_grade = agentFullData.grade;
+                
+                const data = await APIManager.post('/rapport/arrestation/create', rapportData);
+                
+                if (data.success) {
+                    closeRapportFormModal();
+                    alert('✅ Rapport d\'arrestation créé avec succès !');
+                    if (typeof initRapports === 'function') initRapports();
+                } else {
+                    throw new Error(data.error);
+                }
+            })(),
+            'Création du rapport en cours...'
+        );
         
     } catch (error) {
         console.error('Erreur:', error);
-        alert('❌ Erreur: ' + error.message);
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Soumettre le rapport';
+        alert('⚠️ Erreur: ' + error.message);
     }
 }
-
 // ========================================
 // UPLOAD MUGSHOTS VERS IMGBB
 // ========================================
@@ -2687,6 +2535,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
