@@ -8,51 +8,9 @@
     <link rel="icon" type="image/x-icon" href="imgs/ICONE.ico">
 </head>
 <body>
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a href="index.html">
-                <div class="sidebar-logo">
-                    <img src="imgs/LOGO.png" alt="SAHP Badge">
-                </div>
-                <div class="sidebar-title">
-                    <h1>SAHP</h1>
-                </div>
-            </a>
-        </div>
-        
-        <nav class="nav">
-            <ul>
-                <li><a href="index.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Accueil</span>
-                </a></li>
-                <li><a href="bureaux.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Bureaux Régionaux</span>
-                </a></li>
-                <li><a href="plaintes.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Plaintes</span>
-                </a></li>
-                <li><a href="recrutements.html" class="active">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Nous Rejoindre</span>
-                </a></li>
-                <li><a href="medias.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Galerie Média</span>
-                </a></li>
-            </ul>
-        </nav>
-    </aside>
-
+    <div id="sidebar-container"></div>
     <main class="main-content">
-        <header class="hero-header recrutements-bg">
-            <a href="login.html" class="profile-icon">
-                <img src="imgs/profile.png" alt="Profil">
-            </a>
-        </header>
-
+        <div id="hero-container"></div>
         <section class="recrutement-card">
             <h2>Rejoindre la SAHP</h2>
             <div class="recrutement-intro">
@@ -62,7 +20,6 @@
                 <button class="btn-recrutement">Postuler Maintenant</button>
             </div>
         </section>
-
         <section class="prerequis-section">
             <h2>Prérequis</h2>
             <ul class="prerequis-list">
@@ -110,7 +67,6 @@
                 </li>
             </ul>
         </section>
-
         <section class="processus-section">
             <h2>Processus de Recrutement</h2>
             <ul class="timeline">
@@ -158,10 +114,15 @@
                 </li>
             </ul>
         </section>
-
-        <footer class="footer">
-            <p>&copy; MST - San Andreas Highway Patrol. Tous droits réservés.</p>
-        </footer>
+        <div id="footer-container"></div>
     </main>
+    <script src="components.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('sidebar-container').innerHTML = getPublicSidebar();
+        document.getElementById('hero-container').innerHTML = getPublicHeroHeader('recrutements-bg');
+        document.getElementById('footer-container').innerHTML = getFooter();
+        setActiveNavLink();
+    </script>
 </body>
 </html>
