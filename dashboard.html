@@ -8,124 +8,14 @@
     <link rel="icon" type="image/x-icon" href="imgs/ICONE.ico">
 </head>
 <body>
-    <aside class="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-logo">
-            <img src="imgs/LOGO.png" alt="SAHP Badge">
-        </div>
-        <div class="agent-details">
-            <p class="agent-name" id="agentName">Chargement...</p>
-            <p class="agent-badge" id="agentBadge">Badge: ---</p>
-            <p class="agent-grade" id="agentGrade">Grade: ---</p>
-        </div>
-    </div>
-    
-    <nav class="nav">
-        <ul>
-            <li><a href="dashboard.html" class="active">
-                <span class="nav-dot">●</span>
-                <span class="nav-text">Tableau de bord</span>
-            </a></li>
-            
-            <li class="has-submenu">
-                <a href="#" class="submenu-toggle">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Divisions</span>
-                    <span class="arrow">▶</span>
-                </a>
-                <ul class="submenu">
-                    <li class="has-submenu">
-                        <a href="#" class="submenu-toggle">
-                            <span class="nav-text">CVS</span>
-                            <span class="arrow">▶</span>
-                        </a>
-                        <ul class="submenu submenu-level-2">
-                            <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                            <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                        </ul>
-                    </li>
-                    <li class="has-submenu">
-                        <a href="#" class="submenu-toggle">
-                            <span class="nav-text">PSD</span>
-                            <span class="arrow">▶</span>
-                        </a>
-                        <ul class="submenu submenu-level-2">
-                            <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                            <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                        </ul>
-                    </li>
-                    <li class="has-submenu">
-                        <a href="#" class="submenu-toggle">
-                            <span class="nav-text">SOU</span>
-                            <span class="arrow">▶</span>
-                        </a>
-                        <ul class="submenu submenu-level-2">
-                            <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                            <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                        </ul>
-                    </li>
-                    <li class="has-submenu">
-                        <a href="#" class="submenu-toggle">
-                            <span class="nav-text">OAO</span>
-                            <span class="arrow">▶</span>
-                        </a>
-                        <ul class="submenu submenu-level-2">
-                            <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                            <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                        </ul>
-                    </li>
-                    <li class="has-submenu">
-                        <a href="#" class="submenu-toggle">
-                            <span class="nav-text">OCI</span>
-                            <span class="arrow">▶</span>
-                        </a>
-                        <ul class="submenu submenu-level-2">
-                            <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                            <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            
-            <li><a href="personnel.html">
-                <span class="nav-dot">●</span>
-                <span class="nav-text">Personnel</span>
-            </a></li>
-            <li><a href="rapports.html">
-                <span class="nav-dot">●</span>
-                <span class="nav-text">Rapports</span>
-            </a></li>
-            <li><a href="#">
-                <span class="nav-dot">●</span>
-                <span class="nav-text">Logs</span>
-            </a></li>
-        </ul>
-    </nav>
-    <div class="sidebar-footer">
-        <div class="footer-buttons">
-            <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggle" title="Changer de thème">
-                <span class="theme-icon">🌙</span>
-            </button>
-            <button class="logout-btn" onclick="logout()" title="Déconnexion">
-                <span class="logout-icon">🚪</span>
-            </button>
-        </div>
-    </div>
-</aside>
-
+    <div id="sidebar-container"></div>
     <main class="main-content">
-        <header class="hero-header index-bg">
-            <a href="#" class="mail-icon">
-                <img src="imgs/mail.png" alt="Mail">
-            </a>
-        </header>
-
+        <div id="hero-container"></div>
         <section class="content-card">
             <h2>Tableau de bord</h2>
             <p>[Texte A remplacer par la Direction]</p>
             <p>Bienvenue sur l'intranet de la SAHP. Vous trouverez ici tous les outils nécessaires au bon travail de policier.</p>
         </section>
-
         <section class="stats-section">
             <h2>Statistiques</h2>
             <div class="stats-grid">
@@ -136,7 +26,6 @@
                         <p class="stat-value" id="totalAgents">---</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
                     <div class="stat-icon">🚨</div>
                     <div class="stat-info">
@@ -144,7 +33,6 @@
                         <p class="stat-value" id="searchWarrants">---</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
                     <div class="stat-icon">👥</div>
                     <div class="stat-info">
@@ -152,7 +40,6 @@
                         <p class="stat-value" id="totalCitizens">---</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
                     <div class="stat-icon">📋</div>
                     <div class="stat-info">
@@ -160,7 +47,6 @@
                         <p class="stat-value" id="totalReports">---</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
                     <div class="stat-icon">⚠️</div>
                     <div class="stat-info">
@@ -168,15 +54,13 @@
                         <p class="stat-value" id="civilComplaints">---</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
                     <div class="stat-icon">🔍</div>
                     <div class="stat-info">
                         <p class="stat-label">Enquêtes OIS</p>
                         <p class="stat-value" id="oisInvestigations">---</p>
                     </div>
-                </div>
-                
+                </div> 
                 <div class="stat-card">
                     <div class="stat-icon">📄</div>
                     <div class="stat-info">
@@ -185,7 +69,6 @@
                     </div>
                 </div>
             </div>
-            
             <h2 class="section-subtitle">Répartition par Corps</h2>
             <div class="corps-grid">
                 <div class="corps-card direction">
@@ -193,19 +76,16 @@
                     <p class="corps-label">Direction</p>
                     <p class="corps-value" id="corpsDirection">---</p>
                 </div>
-                
                 <div class="corps-card commandement">
                     <div class="corps-icon">🎖️</div>
                     <p class="corps-label">Commandement</p>
                     <p class="corps-value" id="corpsCommandement">---</p>
                 </div>
-                
                 <div class="corps-card supervision">
                     <div class="corps-icon">👔</div>
                     <p class="corps-label">Supervision</p>
                     <p class="corps-value" id="corpsSupervision">---</p>
                 </div>
-                
                 <div class="corps-card application">
                     <div class="corps-icon">🚔</div>
                     <p class="corps-label">Application</p>
@@ -213,7 +93,6 @@
                 </div>
             </div>
         </section>
-
         <section class="quick-links-section">
             <h2>Liens Rapides</h2>
             <div class="quick-links-grid">
@@ -221,43 +100,37 @@
                     <div class="quick-link-icon">📝</div>
                     <p class="quick-link-label">Créer un rapport OIS</p>
                 </a>
-                
                 <a href="#" class="quick-link-card">
                     <div class="quick-link-icon">💬</div>
                     <p class="quick-link-label">Intranet Discord</p>
                 </a>
-                
                 <a href="#" class="quick-link-card">
                     <div class="quick-link-icon">🔫</div>
                     <p class="quick-link-label">Vérifier un CCW</p>
                 </a>
-                
                 <a href="#" class="quick-link-card">
                     <div class="quick-link-icon">⛓️</div>
                     <p class="quick-link-label">Créer un rapport d'arrestation</p>
                 </a>
-                
                 <a href="#" class="quick-link-card">
                     <div class="quick-link-icon">👥</div>
                     <p class="quick-link-label">Base de données Citoyens</p>
-                </a>
-                
+                </a>  
                 <a href="#" class="quick-link-card">
                     <div class="quick-link-icon">📖</div>
                     <p class="quick-link-label">Règlement intérieur</p>
                 </a>
             </div>
         </section>
-
-        <footer class="footer">
-            <p>&copy; MST - San Andreas Highway Patrol. Tous droits réservés.</p>
-        </footer>
+        <div id="footer-container"></div>
     </main>
+    <script src="components.js"></script>
     <script src="script.js"></script>
+    <script>
+        document.getElementById('sidebar-container').innerHTML = getIntraSidebar();
+        document.getElementById('hero-container').innerHTML = getIntraHeroHeader('index-bg');
+        document.getElementById('footer-container').innerHTML = getFooter();
+        setActiveNavLink();
+    </script>
 </body>
 </html>
-
-
-
-
-
