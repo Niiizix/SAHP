@@ -8,139 +8,28 @@
     <link rel="icon" type="image/x-icon" href="imgs/ICONE.ico">
 </head>
 <body>
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <img src="imgs/LOGO.png" alt="SAHP Badge">
-            </div>
-            <div class="agent-details">
-                <p class="agent-name" id="agentName">Chargement...</p>
-                <p class="agent-badge" id="agentBadge">Badge: ---</p>
-                <p class="agent-grade" id="agentGrade">Grade: ---</p>
-            </div>
-        </div>
-        
-        <nav class="nav">
-            <ul>
-                <li><a href="dashboard.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Tableau de bord</span>
-                </a></li>
-                
-                <li class="has-submenu">
-                    <a href="#" class="submenu-toggle">
-                        <span class="nav-dot">●</span>
-                        <span class="nav-text">Divisions</span>
-                        <span class="arrow">▶</span>
-                    </a>
-                    <ul class="submenu">
-                        <li class="has-submenu">
-                            <a href="#" class="submenu-toggle">
-                                <span class="nav-text">CVS</span>
-                                <span class="arrow">▶</span>
-                            </a>
-                            <ul class="submenu submenu-level-2">
-                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                            </ul>
-                        </li>
-                        <li class="has-submenu">
-                            <a href="#" class="submenu-toggle">
-                                <span class="nav-text">PSD</span>
-                                <span class="arrow">▶</span>
-                            </a>
-                            <ul class="submenu submenu-level-2">
-                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                            </ul>
-                        </li>
-                        <li class="has-submenu">
-                            <a href="#" class="submenu-toggle">
-                                <span class="nav-text">SOU</span>
-                                <span class="arrow">▶</span>
-                            </a>
-                            <ul class="submenu submenu-level-2">
-                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                            </ul>
-                        </li>
-                        <li class="has-submenu">
-                            <a href="#" class="submenu-toggle">
-                                <span class="nav-text">OAO</span>
-                                <span class="arrow">▶</span>
-                            </a>
-                            <ul class="submenu submenu-level-2">
-                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                            </ul>
-                        </li>
-                        <li class="has-submenu">
-                            <a href="#" class="submenu-toggle">
-                                <span class="nav-text">OCI</span>
-                                <span class="arrow">▶</span>
-                            </a>
-                            <ul class="submenu submenu-level-2">
-                                <li><a href="#"><span class="nav-text">Informations</span></a></li>
-                                <li><a href="#"><span class="nav-text">Recrutements</span></a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                
-                <li><a href="personnel.html">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Personnel</span>
-                </a></li>
-                <li><a href="rapports.html" class="active">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Rapports</span>
-                </a></li>
-                <li><a href="#">
-                    <span class="nav-dot">●</span>
-                    <span class="nav-text">Logs</span>
-                </a></li>
-            </ul>
-        </nav>
-        <div class="sidebar-footer">
-            <div class="footer-buttons">
-                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggle" title="Changer de thème">
-                    <span class="theme-icon">🌙</span>
-                </button>
-                <button class="logout-btn" onclick="logout()" title="Déconnexion">
-                    <span class="logout-icon">🚪</span>
-                </button>
-            </div>
-        </div>
-    </aside>
-
+    <div id="sidebar-container"></div>
     <main class="main-content">
-        <header class="hero-header rapports-bg">
-            <a href="#" class="mail-icon">
-                <img src="imgs/mail.png" alt="Mail">
-            </a>
-        </header>
-
+        <div id="hero-container"></div>
         <section class="personnel-section">
             <h2>Rapports de la SAHP</h2>
-            
             <div class="search-bar-container">
                 <input type="text" id="rapportsSearch" class="search-input" placeholder="Rechercher un rapport (agent, badge, statut...)">
                 <button class="add-agent-btn" onclick="openNewRapportTypeModal()">+ Nouveau Rapport</button>
             </div>
-
             <div class="personnel-loading" id="rapportsLoading">Chargement des rapports...</div>
             <div class="personnel-error" id="rapportsError" style="display: none;"></div>
-
             <div id="rapportsTableContainer"></div>
         </section>
-
-        <footer class="footer">
-            <p>&copy; MST - San Andreas Highway Patrol. Tous droits réservés.</p>
-        </footer>
+        <div id="footer-container"></div>
     </main>
+    <script src="components.js"></script>
     <script src="script.js"></script>
+    <script>
+        document.getElementById('sidebar-container').innerHTML = getIntraSidebar();
+        document.getElementById('hero-container').innerHTML = getIntraHeroHeader('rapports-bg');
+        document.getElementById('footer-container').innerHTML = getFooter();
+        setActiveNavLink();
+    </script>
 </body>
-
 </html>
-
-
