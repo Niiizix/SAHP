@@ -1007,21 +1007,15 @@ async function archiveAgent(agentId) {
     }
     
     try {
-        const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/archive', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ agent_id: agentId })
-        });
+        await LoadingManager.wrap(
+            APIManager.post('/agent/archive', { agent_id: agentId }),
+            'Archivage en cours...'
+        );
         
-        const data = await response.json();
+        closeAgentModal();
+        alert('Agent archivé avec succès.');
+        initPersonnel();
         
-        if (data.success) {
-            closeAgentModal();
-            alert('Agent archivé avec succès.');
-            initPersonnel();
-        } else {
-            alert('Erreur: ' + data.error);
-        }
     } catch (error) {
         console.error('Erreur:', error);
         alert('Erreur lors de l\'archivage');
@@ -1034,21 +1028,15 @@ async function deployAgent(agentId) {
     }
     
     try {
-        const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/deploy', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ agent_id: agentId })
-        });
+        await LoadingManager.wrap(
+            APIManager.post('/agent/deploy', { agent_id: agentId }),
+            'Déploiement en cours...'
+        );
         
-        const data = await response.json();
+        closeAgentModal();
+        alert('Agent déployé avec succès.');
+        initPersonnel();
         
-        if (data.success) {
-            closeAgentModal();
-            alert('Agent déployé avec succès.');
-            initPersonnel();
-        } else {
-            alert('Erreur: ' + data.error);
-        }
     } catch (error) {
         console.error('Erreur:', error);
         alert('Erreur lors du déploiement');
@@ -1230,49 +1218,42 @@ async function loadAgentRecommandations(agentId) {
 }
 
 async function openAddRecommandationModal(agentId) {
-    const modal = document.createElement('div');
-    modal.className = 'form-modal active';
-    modal.innerHTML = `
-        <div class="form-modal-content">
-            <h3>Ajouter une Recommandation</h3>
-            <form id="addRecommandationForm">
-                <div class="form-group">
-                    <label>Texte de la recommandation</label>
-                    <textarea id="recommandationTexte" required placeholder="Entrez la recommandation..."></textarea>
-                </div>
-                <div class="form-buttons">
-                    <button type="button" class="form-btn cancel" onclick="ModalManager.close('.form-modal')">Annuler</button>
-                    <button type="submit" class="form-btn submit">Valider</button>
-                </div>
-            </form>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    document.getElementById('addRecommandationForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const texte = document.getElementById('recommandationTexte').value;
-        const agentData = JSON.parse(sessionStorage.getItem('agent'));
-        
-        const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/add-recommandation', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agent_id: agentId,
-                texte: texte,
-                ajoutee_par: `${agentData.prenom} ${agentData.nom}`
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            ModalManager.close('.form-modal');
-            loadAgentRecommandations(agentId);
-        } else {
-            alert('Erreur: ' + data.error);
+    ModalManager.createFormModal({
+        title: 'Ajouter une Recommandation',
+        formId: 'addRecommandationForm',
+        fields: [
+            {
+                type: 'textarea',
+                id: 'recommandationTexte',
+                label: 'Texte de la recommandation',
+                required: true,
+                placeholder: 'Entrez la recommandation...'
+            }
+        ],
+        submitText: 'Valider',
+        onSubmit: async (e) => {
+            e.preventDefault();
+            
+            try {
+                const texte = document.getElementById('recommandationTexte').value;
+                const agentData = JSON.parse(sessionStorage.getItem('agent'));
+                
+                const data = await APIManager.post('/agent/add-recommandation', {
+                    agent_id: agentId,
+                    texte: texte,
+                    ajoutee_par: `${agentData.prenom} ${agentData.nom}`
+                });
+                
+                if (data.success) {
+                    ModalManager.close('.form-modal');
+                    loadAgentRecommandations(agentId);
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'ajout de la recommandation');
+            }
         }
     });
 }
@@ -1320,61 +1301,53 @@ async function loadAgentSanctions(agentId) {
 
 async function openAddSanctionModal(agentId) {
     try {
-        const response = await fetch('https://sahp.charliemoimeme.workers.dev/sanctions-types');
-        const sanctionsTypes = await response.json();
+        const sanctionsTypes = await APIManager.get('/sanctions-types');
         
-        const modal = document.createElement('div');
-        modal.className = 'form-modal active';
-        modal.innerHTML = `
-            <div class="form-modal-content">
-                <h3>Ajouter une Sanction</h3>
-                <form id="addSanctionForm">
-                    <div class="form-group">
-                        <label>Type de sanction</label>
-                        <select id="sanctionTypeSelect" required>
-                            <option value="">-- Choisir --</option>
-                            ${sanctionsTypes.map(s => `<option value="${s.id}">${s.nom}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Explication</label>
-                        <textarea id="sanctionExplication" required placeholder="Expliquez la raison de la sanction..."></textarea>
-                    </div>
-                    <div class="form-buttons">
-                        <button type="button" class="form-btn cancel" onclick="ModalManager.close('.form-modal')">Annuler</button>
-                        <button type="submit" class="form-btn submit">Valider</button>
-                    </div>
-                </form>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        document.getElementById('addSanctionForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const sanctionTypeId = document.getElementById('sanctionTypeSelect').value;
-            const explication = document.getElementById('sanctionExplication').value;
-            const agentData = JSON.parse(sessionStorage.getItem('agent'));
-            
-            const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/add-sanction', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    agent_id: agentId,
-                    sanction_type_id: sanctionTypeId,
-                    explication: explication,
-                    ajoutee_par: `${agentData.prenom} ${agentData.nom}`
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                ModalManager.close('.form-modal');
-                loadAgentSanctions(agentId);
-            } else {
-                alert('Erreur: ' + data.error);
+        ModalManager.createFormModal({
+            title: 'Ajouter une Sanction',
+            formId: 'addSanctionForm',
+            fields: [
+                {
+                    type: 'select',
+                    id: 'sanctionTypeSelect',
+                    label: 'Type de sanction',
+                    required: true,
+                    options: sanctionsTypes.map(s => ({ value: s.id, label: s.nom }))
+                },
+                {
+                    type: 'textarea',
+                    id: 'sanctionExplication',
+                    label: 'Explication',
+                    required: true,
+                    placeholder: 'Expliquez la raison de la sanction...'
+                }
+            ],
+            submitText: 'Valider',
+            onSubmit: async (e) => {
+                e.preventDefault();
+                
+                try {
+                    const sanctionTypeId = document.getElementById('sanctionTypeSelect').value;
+                    const explication = document.getElementById('sanctionExplication').value;
+                    const agentData = JSON.parse(sessionStorage.getItem('agent'));
+                    
+                    const data = await APIManager.post('/agent/add-sanction', {
+                        agent_id: agentId,
+                        sanction_type_id: sanctionTypeId,
+                        explication: explication,
+                        ajoutee_par: `${agentData.prenom} ${agentData.nom}`
+                    });
+                    
+                    if (data.success) {
+                        ModalManager.close('.form-modal');
+                        loadAgentSanctions(agentId);
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de l\'ajout de la sanction');
+                }
             }
         });
         
@@ -1729,27 +1702,24 @@ async function deleteAgent(agentId) {
         return;
     }
     
-    // Double confirmation
     if (!confirm('Dernière confirmation : voulez-vous vraiment supprimer cet agent définitivement ?')) {
         return;
     }
     
     try {
-        const response = await fetch('https://sahp.charliemoimeme.workers.dev/agent/delete', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ agent_id: agentId })
-        });
+        await LoadingManager.wrap(
+            fetch('https://sahp.charliemoimeme.workers.dev/agent/delete', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ agent_id: agentId })
+            }).then(r => r.json()),
+            'Suppression en cours...'
+        );
         
-        const data = await response.json();
+        closeAgentModal();
+        alert('Agent supprimé définitivement.');
+        initPersonnel();
         
-        if (data.success) {
-            closeAgentModal();
-            alert('Agent supprimé définitivement.');
-            initPersonnel();
-        } else {
-            alert('Erreur: ' + data.error);
-        }
     } catch (error) {
         console.error('Erreur:', error);
         alert('Erreur lors de la suppression');
@@ -2536,5 +2506,6 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
