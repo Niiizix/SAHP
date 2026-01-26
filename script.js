@@ -972,7 +972,7 @@ function uploadPhoto(agentId) {
             const data = await response.json();
             
             if (data.success) {
-                // Recharger la modal avec la nouvelle photo
+                CacheManager.delete(`/agent/${agentId}`);
                 openAgentModal(agentId);
             } else {
                 alert('Erreur: ' + data.error);
@@ -1013,6 +1013,7 @@ async function archiveAgent(agentId) {
         );
         
         closeAgentModal();
+        CacheManager.delete('/personnel');
         alert('Agent archivé avec succès.');
         initPersonnel();
         
@@ -1034,6 +1035,7 @@ async function deployAgent(agentId) {
         );
         
         closeAgentModal();
+        CacheManager.delete('/personnel');
         alert('Agent déployé avec succès.');
         initPersonnel();
         
@@ -1165,6 +1167,7 @@ async function openAddMedailleModal(agentId) {
             
             if (data.success) {
                 ModalManager.close('.form-modal');
+                CacheManager.delete(`/agent/${agentId}/medailles`);
                 loadAgentMedailles(agentId);
             } else {
                 alert('Erreur: ' + data.error);
@@ -1246,6 +1249,7 @@ async function openAddRecommandationModal(agentId) {
                 
                 if (data.success) {
                     ModalManager.close('.form-modal');
+                    CacheManager.delete(`/agent/${agentId}/recommandations`);
                     loadAgentRecommandations(agentId);
                 } else {
                     alert('Erreur: ' + data.error);
@@ -1340,6 +1344,7 @@ async function openAddSanctionModal(agentId) {
                     
                     if (data.success) {
                         ModalManager.close('.form-modal');
+                        CacheManager.delete(`/agent/${agentId}/sanctions`);
                         loadAgentSanctions(agentId);
                     } else {
                         alert('Erreur: ' + data.error);
@@ -1524,6 +1529,7 @@ function openAddAgentModal() {
         );
         
         closeAgentFormModal();
+        CacheManager.delete('/personnel');
         alert('Agent créé avec succès !');
         initPersonnel();
         
@@ -1676,6 +1682,8 @@ async function openEditAgentModal(agentId) {
                 if (data.success) {
                     closeAgentFormModal();
                     closeAgentModal();
+                    CacheManager.delete('/personnel');
+                    CacheManager.deleteByPrefix('/agent/');
                     alert('Agent modifié avec succès !');
                     initPersonnel();
                 } else {
@@ -1717,6 +1725,8 @@ async function deleteAgent(agentId) {
         );
         
         closeAgentModal();
+        CacheManager.delete('/personnel');
+        CacheManager.deleteByPrefix('/agent/');
         alert('Agent supprimé définitivement.');
         initPersonnel();
         
@@ -2506,6 +2516,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
