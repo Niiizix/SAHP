@@ -352,6 +352,92 @@ class LoadingManager {
 }
 
 // ========================================
+// GESTION DU CACHE
+// ========================================
+
+class CacheManager {
+    static cache = new Map();
+    static TTL = 5 * 60 * 1000; // 5 minutes par défaut
+    
+    /**
+     * Récupère une donnée du cache
+     * @param {string} key - Clé du cache
+     * @returns {any|null}
+     */
+    static get(key) {
+        const item = this.cache.get(key);
+        
+        if (!item) return null;
+        
+        // Vérifier si expiré
+        if (Date.now() > item.expiry) {
+            this.cache.delete(key);
+            return null;
+        }
+        
+        console.log('📦 Cache HIT:', key);
+        return item.data;
+    }
+    
+    /**
+     * Stocke une donnée dans le cache
+     * @param {string} key - Clé du cache
+     * @param {any} data - Données à stocker
+     * @param {number} ttl - Durée de vie en ms (optionnel)
+     */
+    static set(key, data, ttl = this.TTL) {
+        this.cache.set(key, {
+            data,
+            expiry: Date.now() + ttl
+        });
+        console.log('💾 Cache SET:', key, `(expire dans ${ttl/1000}s)`);
+    }
+    
+    /**
+     * Supprime une entrée du cache
+     * @param {string} key - Clé à supprimer
+     */
+    static delete(key) {
+        this.cache.delete(key);
+        console.log('🗑️ Cache DELETE:', key);
+    }
+    
+    /**
+     * Vide tout le cache
+     */
+    static clear() {
+        this.cache.clear();
+        console.log('🧹 Cache CLEAR: Tout effacé');
+    }
+    
+    /**
+     * Supprime toutes les entrées commençant par un préfixe
+     * @param {string} prefix - Préfixe des clés à supprimer
+     */
+    static deleteByPrefix(prefix) {
+        const keys = Array.from(this.cache.keys());
+        let count = 0;
+        keys.forEach(key => {
+            if (key.startsWith(prefix)) {
+                this.cache.delete(key);
+                count++;
+            }
+        });
+        console.log(`🗑️ Cache DELETE BY PREFIX: "${prefix}" (${count} entrées supprimées)`);
+    }
+    
+    /**
+     * Affiche le contenu du cache (debug)
+     */
+    static debug() {
+        console.log('🔍 Cache DEBUG:', {
+            size: this.cache.size,
+            keys: Array.from(this.cache.keys())
+        });
+    }
+}
+
+// ========================================
 // VALIDATION DES DONNÉES
 // ========================================
 
