@@ -226,17 +226,34 @@ class APIManager {
     }
     
     /**
-     * Effectue une requête GET
+     * Effectue une requête GET avec cache
      * @param {string} endpoint - Endpoint de l'API
+     * @param {boolean} useCache - Utiliser le cache ou non (défaut: true)
+     * @param {number} ttl - Durée de vie du cache en ms (optionnel)
      * @returns {Promise<any>}
      */
-    static async get(endpoint) {
+    static async get(endpoint, useCache = true, ttl = undefined) {
+        // Vérifier le cache d'abord
+        if (useCache) {
+            const cached = CacheManager.get(endpoint);
+            if (cached) {
+                return cached;
+            }
+        }
+        
         try {
             const response = await fetch(`${this.BASE_URL}${endpoint}`);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
-            return await response.json();
+            const data = await response.json();
+            
+            // Mettre en cache si demandé
+            if (useCache) {
+                CacheManager.set(endpoint, data, ttl);
+            }
+            
+            return data;
         } catch (error) {
             console.error('Erreur GET:', error);
             throw error;
