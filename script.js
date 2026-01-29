@@ -2356,6 +2356,7 @@ async function submitRapportArrestation(agentData) {
                 
                 if (data.success) {
                     closeRapportFormModal();
+                    CacheManager.delete('/rapports/arrestations');
                     alert('✅ Rapport d\'arrestation créé avec succès !');
                     if (typeof initRapports === 'function') initRapports();
                 } else {
@@ -2516,6 +2517,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 
 
 
